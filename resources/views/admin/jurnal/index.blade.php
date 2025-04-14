@@ -8,9 +8,13 @@
     </x-slot>
     <section class="section">
         <div class="card">
+            @php
+                $role = Auth::user()->role;
+            @endphp
             <div class="card-header d-flex justify-content-between align-items-center">
                 <span>Pengguna Datatable</span>
-                <a href="{{ route('karyawan.jurnal.create') }}" class="btn btn-primary">
+
+                <a href="{{ route($role . '.jurnal.create') }}" class="btn btn-primary">
                     <i class="bi bi-plus"></i> Tambah Data
                 </a>
             </div>
@@ -47,11 +51,11 @@
                             <td>{{ $j->tanggal }}</td>
                             <td>{{ $j->uraian }}</td>
                             <td>
-                                <a href="{{ route('karyawan.jurnal.edit', $j->id) }}"  class="btn btn-sm btn-warning">
+                                <a href="{{ route($role . '.jurnal.edit', $j->id) }}"  class="btn btn-sm btn-warning">
                                     <i class="bi bi-pencil-square"></i>
                                     Edit
                                 </a>
-                                <form action="{{ route('karyawan.jurnal.delete', $j->id) }}" method="POST" class="d-inline" onclick="return confirm('Apakah anda yakin ingin menghapus data ini?')">
+                                <form action="{{ route($role . '.jurnal.delete', $j->id) }}" method="POST" class="d-inline" onclick="return confirm('Apakah anda yakin ingin menghapus data ini?')">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="btn btn-sm btn-danger">

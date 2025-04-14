@@ -1,7 +1,7 @@
 <div id="sidebar" class='active'>
     <div class="sidebar-wrapper active">
         <div class="sidebar-header">
-            <img src="assets/images/logo.svg" alt="" srcset="">
+            <img src="{{asset('assets/images/logo.svg')}}" alt="" srcset="">
         </div>
         <div class="sidebar-menu">
             <ul class="menu">
@@ -59,21 +59,14 @@
                     <li class='sidebar-title'>Laporan</li>
 
                     <li class="sidebar-item">
-                        <a href="#" class='sidebar-link'>
+                        <a href="{{route($role . '.jurnal')}}" class='sidebar-link'>
                             <i data-feather="book-open" width="20"></i>
                             <span>Jurnal Harian</span>
                         </a>
                     </li>
 
                     <li class="sidebar-item">
-                        <a href="#" class='sidebar-link'>
-                            <i data-feather="bar-chart-2" width="20"></i>
-                            <span>Laporan Kinerja</span>
-                        </a>
-                    </li>
-
-                    <li class="sidebar-item">
-                        <a href="#" class='sidebar-link'>
+                        <a href="{{route($role . '.laporan_penilaian')}}" class='sidebar-link'>
                             <i data-feather="clipboard" width="20"></i>
                             <span>Laporan Penilaian</span>
                         </a>
@@ -100,19 +93,19 @@
                     </li>
 
                     <li class="sidebar-item">
-                        <a href="#" class="sidebar-link">
+                        <a href="{{ route($role . '.riwayat_penilaian')}}" class="sidebar-link">
                             <i data-feather="check-square" width="20"></i>
                             <span>Penilaian Saya</span>
                         </a>
                     </li>
 
 
-                    <li class="sidebar-item">
+                    {{-- <li class="sidebar-item">
                         <a href="#" class='sidebar-link'>
                             <i data-feather="clipboard" width="20"></i>
                             <span>Laporan Penilaian</span>
                         </a>
-                    </li>
+                    </li> --}}
                 @endif
                 <!-- sidebar karyawan end  -->
 

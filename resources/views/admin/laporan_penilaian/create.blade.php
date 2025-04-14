@@ -12,7 +12,11 @@
     </div>
 @endif
 
-    <form action="{{ route('kepala_sekolah.laporan_penilaian.store') }}" method="POST">
+@php
+    $role = Auth::user()->role;
+@endphp
+
+    <form action="{{ route($role . '.laporan_penilaian.store') }}" method="POST">
         @csrf
         <div class="form-group">
             <label>Karyawan</label>

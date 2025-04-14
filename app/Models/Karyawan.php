@@ -15,6 +15,7 @@ class Karyawan extends Model
         'jabatan',
         'divisi_id',
         'user_id',
+        'status',
     ];
 
     public function divisi()

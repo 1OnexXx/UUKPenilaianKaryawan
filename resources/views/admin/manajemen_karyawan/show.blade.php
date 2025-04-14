@@ -127,13 +127,13 @@
     </div>
 
     <div class="card-content">
-        <p><strong>Nama Lengkap:</strong> {{ $karyawan->user->nama_lengkap }}</p>
-        <p><strong>Email:</strong> {{ $karyawan->user->email }}</p>
-        <p><strong>Divisi:</strong> {{ $karyawan->divisi->nama_divisi }}</p>
-        <p><strong>NIP:</strong> {{ $karyawan->nip }}</p>
-        <p><strong>Jabatan:</strong> {{ $karyawan->jabatan }}</p>
-        <p><strong>No HP:</strong> {{ $karyawan->no_hp }}</p>
-        <p><strong>Tanggal Masuk:</strong> {{ \Carbon\Carbon::parse($karyawan->tanggal_masuk)->format('d M Y') }}</p>
+        <p><strong>Nama Lengkap:</strong> {{ $karyawan->user->nama_lengkap ?? '-' }}</p>
+        <p><strong>Email:</strong> {{ $karyawan->user->email ?? '-' }}</p>
+        <p><strong>Divisi:</strong> {{ $karyawan->divisi->nama_divisi ?? '-' }}</p>
+        <p><strong>NIP:</strong> {{ $karyawan->nip ?? '-'}}</p>
+        <p><strong>Jabatan:</strong> {{ $karyawan->jabatan ?? '-'}}</p>
+        <p><strong>No HP:</strong> {{ $karyawan->no_hp ?? '-'}}</p>
+        <p><strong>Tanggal Masuk:</strong> {{ \Carbon\Carbon::parse($karyawan->tanggal_masuk)->format('d M Y') ?? '-    '}} </p>
         <p><strong>Status:</strong>
             <span class="status {{ $karyawan->status == 'aktif' ? 'aktif' : 'non-aktif' }}">
                 {{ ucfirst($karyawan->status) }}

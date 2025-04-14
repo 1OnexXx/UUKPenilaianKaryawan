@@ -49,6 +49,21 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->group(function () {
     Route::delete('/karyawan/delete/{id}', [KaryawanController::class, 'destroy'])->name('admin.karyawan.delete');
     Route::get('/karyawan/show/{id}', [KaryawanController::class, 'show'])->name('admin.karyawan.show');
 
+    Route::get('/jurnal', [JurnalController::class, 'index'])->name('admin.jurnal');
+    Route::get('/jurnal/create', [JurnalController::class, 'create'])->name('admin.jurnal.create');
+    Route::post('/jurnal/store', [JurnalController::class, 'store'])->name('admin.jurnal.store');
+    Route::get('/jurnal/edit/{id}', [JurnalController::class, 'edit'])->name('admin.jurnal.edit');
+    Route::put('/jurnal/update/{id}', [JurnalController::class, 'update'])->name('admin.jurnal.update');
+    Route::delete('/jurnal/delete/{id}', [JurnalController::class, 'destroy'])->name('admin.jurnal.delete');
+
+    Route::get('/laporan_penilaian', [LaporanPenilaianController::class, 'index'])->name('admin.laporan_penilaian');
+    Route::get('/laporan_penilaian/create', [LaporanPenilaianController::class, 'create'])->name('admin.laporan_penilaian.create');
+    Route::post('/laporan_penilaian/store', [LaporanPenilaianController::class, 'store'])->name('admin.laporan_penilaian.store');
+    Route::get('/laporan_penilaian/edit/{id}', [LaporanPenilaianController::class, 'edit'])->name('admin.laporan_penilaian.edit');
+    Route::put('/laporan_penilaian/update/{id}', [LaporanPenilaianController::class, 'update'])->name('admin.laporan_penilaian.update');
+    Route::delete('/laporan_penilaian/delete/{id}', [LaporanPenilaianController::class, 'destroy'])->name('admin.laporan_penilaian.delete');
+
+
 });
 
 Route::prefix('karyawan')->middleware(['auth', 'role:karyawan'])->group(function () {
@@ -66,6 +81,9 @@ Route::prefix('karyawan')->middleware(['auth', 'role:karyawan'])->group(function
     Route::get('/pelaporan/edit/{id}', [PelaporanKinerjaController::class, 'edit'])->name('karyawan.pelaporan.edit');
     Route::put('/pelaporan/update/{id}', [PelaporanKinerjaController::class, 'update'])->name('karyawan.pelaporan.update');
     Route::delete('/pelaporan/delete/{id}', [PelaporanKinerjaController::class, 'destroy'])->name('karyawan.pelaporan.delete');
+
+    Route::get('/riwayat_penilaian', [PenilaianKaryawanController::class, 'index'])->name('karyawan.riwayat_penilaian');
+
 
 }); 
 

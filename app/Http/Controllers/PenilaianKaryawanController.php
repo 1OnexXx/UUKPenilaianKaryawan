@@ -6,13 +6,24 @@ use App\Models\Karyawan;
 use Illuminate\Http\Request;
 use App\Models\KategoriPenilaian;
 use App\Models\PenilaianKaryawan;
+use Illuminate\Support\Facades\Auth;
 
 class PenilaianKaryawanController extends Controller
 {
     public function index()
     {
+        $role = Auth::user()->role;
 
-        $penilaian = PenilaianKaryawan::with(['karyawan.user', 'penilai', 'kategori'])->get();
+        if ($role == 'karyawan') {
+        $id = Auth::user()->karyawan->id;
+
+            $penilaian = PenilaianKaryawan::whereHas('karyawan', function ($query) use ($id) {
+                $query->where('karyawan_id', $id);
+            })->with(['karyawan.user', 'penilai', 'kategori'])->get();
+        } else {
+            $penilaian = PenilaianKaryawan::with(['karyawan.user', 'penilai', 'kategori'])->get();
+        }
+
         return view('admin.penilaian_karyawan.index', compact('penilaian'));
 
     }

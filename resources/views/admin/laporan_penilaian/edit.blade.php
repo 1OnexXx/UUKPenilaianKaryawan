@@ -2,8 +2,10 @@
     <x-slot name="title">
         Edit Laporan Penilaian
     </x-slot>
-
-    <form action="{{ route('kepala_sekolah.laporan_penilaian.update', $laporan->id) }}" method="POST">
+    @php
+        $role = Auth::user()->role;
+    @endphp
+    <form action="{{ route($role . '.laporan_penilaian.update', $laporan->id) }}" method="POST">
         @csrf
         @method('PUT') <!-- Pastikan menggunakan PUT untuk update -->
 

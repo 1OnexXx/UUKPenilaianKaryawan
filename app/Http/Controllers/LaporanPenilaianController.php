@@ -6,6 +6,7 @@ use App\Models\Karyawan;
 use Illuminate\Http\Request;
 use App\Models\LaporanPenilaian;
 use App\Models\PenilaianKaryawan;
+use Illuminate\Support\Facades\Auth;
 
 class LaporanPenilaianController extends Controller
 {
@@ -23,6 +24,8 @@ class LaporanPenilaianController extends Controller
 
     public function store(Request $request)
     {
+        $role = Auth::user()->role;
+        
         $request->validate([
             'karyawan_id' => 'required|exists:karyawan,id',
             'jenis_laporan' => 'required|in:bulanan,semester,tahunan',
@@ -64,7 +67,7 @@ class LaporanPenilaianController extends Controller
             'dibuat_oleh' => auth()->id(),
         ]);
 
-        return redirect()->route('kepala_sekolah.laporan_penilaian')->with('success', 'Laporan penilaian berhasil dibuat.');
+        return redirect()->route($role . '.laporan_penilaian')->with('success', 'Laporan penilaian berhasil dibuat.');
     }
 
     public function edit($id)
@@ -76,6 +79,7 @@ class LaporanPenilaianController extends Controller
 
     public function update(Request $request, $id)
     {
+        $role = Auth::user()->role;
         // Validasi input
         $request->validate([
             'karyawan_id' => 'required|exists:karyawan,id',
@@ -123,14 +127,16 @@ class LaporanPenilaianController extends Controller
         ]);
 
         // Redirect kembali ke halaman laporan dengan pesan sukses
-        return redirect()->route('kepala_sekolah.laporan_penilaian')->with('success', 'Laporan penilaian berhasil diperbarui.');
+        return redirect()->route($role . '.laporan_penilaian')->with('success', 'Laporan penilaian berhasil diperbarui.');
     }
     public function destroy($id)
     {
+        $role = Auth::user()->role;
+
         $laporan = LaporanPenilaian::findOrFail($id);
         $laporan->delete();
 
-        return redirect()->route('kepala_sekolah.laporan_penilaian')->with('success', 'Laporan penilaian berhasil dihapus.');
+        return redirect()->route($role . '.laporan_penilaian')->with('success', 'Laporan penilaian berhasil dihapus.');
     }
 
 }
