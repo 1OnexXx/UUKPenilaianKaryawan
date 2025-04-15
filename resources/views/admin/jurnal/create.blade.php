@@ -18,6 +18,7 @@
                 <form action="{{ route($role . '.jurnal.store') }}" method="POST">
                     @csrf
 
+                    @if ($role == 'tim_penilai')
                     <div class="form-group">
                         <label for="karyawan">Pilih Karyawan</label>
                         <select name="karyawan_id" class="form-control" required>
@@ -28,6 +29,8 @@
                         </select>
                     </div>
 
+                    @endif
+                    
                     <div class="row">
                         <div class="col-12 mt-3">
                             <div class="form-group">

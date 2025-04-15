@@ -1,16 +1,22 @@
 <x-layout.main>
     <link rel="stylesheet" href="{{ asset('assets/css/bootstrap.css') }}">
-        <link rel="stylesheet" href="{{ asset('assets/vendors/simple-datatables/style.css') }}">
-        <link rel="stylesheet" href="{{ asset('assets/vendors/perfect-scrollbar/perfect-scrollbar.css') }}">
-        <link rel="stylesheet" href="{{ asset('assets/css/app.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/vendors/simple-datatables/style.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/vendors/perfect-scrollbar/perfect-scrollbar.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/app.css') }}">
     <x-slot name="title">
         Penilaian karyawan
     </x-slot>
     <section class="section">
+        @php
+            $role = Auth::user()->role;
+        @endphp
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <span>Penilaian Karyawna Datatable</span>
-                <a href="{{ route('tim_penilai.karyawan') }}" class="btn btn-primary"><i class="bi bi-plus"></i> Tambah Data"></a>
+                @if ($role == 'tim_penilai')
+                    <a href="{{ route('tim_penilai.karyawan') }}" class="btn btn-primary"><i class="bi bi-plus"></i>
+                        Tambah Data"></a>
+                @endif
             </div>
             <div class="card-body">
                 @if (session('success'))
@@ -37,36 +43,43 @@
                             <th>nilai</th>
                             <th>komentar</th>
                             <th>periode</th>
-                            <th>action</th>
+                            @if ($role == 'tim_penilai')
+                                <th>action</th>
+                            @endif
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach ($penilaian as $p )
-                        <tr>
-                            <td>{{ $loop->iteration }} </td>
-                            <td>{{ $p->karyawan->user->nama_lengkap }}</td>
-                            <td>{{ $p->karyawan->user->email }}</td>
-                            <td>{{ $p->penilai->nama_lengkap }}</td>
-                            <td>{{ $p->penilai->email }}</td>
-                            <td>{{ $p->kategori->nama_kategori }}</td>
-                            <td>{{ $p->nilai }}</td>
-                            <td>{{ $p->komentar }}</td>
-                            <td>{{ $p->periode }}</td>
-                            <td>
-                                <a href="{{ route('tim_penilai.riwayat_penilaian.edit', $p->id) }}"  class="btn btn-sm btn-warning">
-                                    <i class="bi bi-pencil-square"></i>
-                                    Edit
-                                </a>
-                                <form action="{{ route('tim_penilai.riwayat_penilaian.delete', $p->id) }}" method="POST" class="d-inline" onclick="return confirm('Apakah anda yakin ingin menghapus data ini?')">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn btn-sm btn-danger">
-                                        <i class="bi bi-trash"></i>
-                                        Hapus
-                                    </button>
-                                </form>
-                            </td>
-                        </tr>
+                        @foreach ($penilaian as $p)
+                            <tr>
+                                <td>{{ $loop->iteration }} </td>
+                                <td>{{ $p->karyawan->user->nama_lengkap }}</td>
+                                <td>{{ $p->karyawan->user->email }}</td>
+                                <td>{{ $p->penilai->nama_lengkap }}</td>
+                                <td>{{ $p->penilai->email }}</td>
+                                <td>{{ $p->kategori->nama_kategori }}</td>
+                                <td>{{ $p->nilai }}</td>
+                                <td>{{ $p->komentar }}</td>
+                                <td>{{ $p->periode }}</td>
+                                <td>
+                                    @if ($role == 'tim_penilai')
+                                        <a href="{{ route('tim_penilai.riwayat_penilaian.edit', $p->id) }}"
+                                            class="btn btn-sm btn-warning">
+                                            <i class="bi bi-pencil-square"></i>
+                                            Edit
+                                        </a>
+                                        <form action="{{ route('tim_penilai.riwayat_penilaian.delete', $p->id) }}"
+                                            method="POST" class="d-inline"
+                                            onclick="return confirm('Apakah anda yakin ingin menghapus data ini?')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-sm btn-danger">
+                                                <i class="bi bi-trash"></i>
+                                                Hapus
+                                            </button>
+                                        </form>
+                                    @endif
+                                </td>
+                            </tr>
                         @endforeach
                     </tbody>
                 </table>

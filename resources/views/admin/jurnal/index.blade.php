@@ -12,7 +12,7 @@
                 $role = Auth::user()->role;
             @endphp
             <div class="card-header d-flex justify-content-between align-items-center">
-                <span>Pengguna Datatable</span>
+                <span>Jurnal Datatable</span>
 
                 <a href="{{ route($role . '.jurnal.create') }}" class="btn btn-primary">
                     <i class="bi bi-plus"></i> Tambah Data
