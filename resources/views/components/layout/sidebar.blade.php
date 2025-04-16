@@ -155,19 +155,20 @@
 
 
                     <li class="sidebar-item">
-                        <a href="#" class='sidebar-link'>
+                        <a href="{{route($role . '.pelaporan')}}" class='sidebar-link'>
                             <i data-feather="bar-chart-2" width="20"></i>
                             <span>Pelaporan Kinerja</span>
                         </a>
                     </li>
 
 
-                    <li class="sidebar-item">
-                        <a href="#" class='sidebar-link'>
+                    {{-- <li class="sidebar-item">
+                        <a href="{{route($rele . '.')}}" class='sidebar-link'>
                             <i data-feather="trending-up" width="20"></i>
-                            <span>Monitoring</span>
+                            <span>Monitoring penilaian</span>
                         </a>
                     </li>
+                     --}}
                 @endif
 
                 <!-- sidebar kepala sekolah end  -->

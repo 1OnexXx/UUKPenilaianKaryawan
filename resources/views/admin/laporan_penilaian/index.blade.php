@@ -39,16 +39,22 @@
                                         <!-- Tombol untuk download PDF -->
                                         <form action="{{ route('laporan.generate') }}" method="GET" class="mt-4">
                                             <input type="hidden" name="download_pdf" value="true">
-                                            <div class="form-group">
-                                                <label>Jenis Laporan</label>
-                                                <select name="jenis_laporan" class="form-control" required>
+                                            
+                                            <div class="form-group mb-3">
+                                                <label for="jenis_laporan" class="form-label">Pilih Jenis Laporan</label>
+                                                <select name="jenis_laporan" id="jenis_laporan" class="form-control" required>
+                                                    <option value="" disabled selected>-- Pilih Jenis Laporan --</option>
                                                     <option value="bulanan">Bulanan</option>
                                                     <option value="semester">Semester</option>
                                                     <option value="tahunan">Tahunan</option>
                                                 </select>
                                             </div>
-                                            <button type="submit" class="btn btn-success">Download PDF</button>
+                                        
+                                            <button type="submit" class="btn btn-success">
+                                                <i class="fas fa-file-download"></i> Download PDF
+                                            </button>
                                         </form>
+                                        
 
                                     </div>
                                     <div class="modal-footer">

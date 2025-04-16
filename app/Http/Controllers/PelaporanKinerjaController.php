@@ -5,16 +5,21 @@ namespace App\Http\Controllers;
 use App\Models\Karyawan;
 use Illuminate\Http\Request;
 use App\Models\PelaporanKinerja;
+use Illuminate\Support\Facades\Auth;
 
 class PelaporanKinerjaController extends Controller
 {
     public function index()
     {
         $userId = auth()->id(); // ambil ID user yang sedang login
-
-        $pelaporan = PelaporanKinerja::whereHas('karyawan', function ($query) use ($userId) {
-            $query->where('user_id', $userId);
-        })->with(['karyawan.user'])->get();
+        $role = Auth::user()->role;
+        if ($role == 'kepala_sekolah' || 'admin') {
+            $pelaporan = PelaporanKinerja::with(['karyawan.user'])->get();
+        } else {
+            $pelaporan = PelaporanKinerja::whereHas('karyawan', function ($query) use ($userId) {
+                $query->where('user_id', $userId);
+            })->with(['karyawan.user'])->get();
+        }
 
         return view('admin.pelaporan_kinerja.index', compact('pelaporan'));
     }
@@ -37,7 +42,7 @@ class PelaporanKinerjaController extends Controller
 
         // Cari karyawan berdasarkan user yang sedang login
         $karyawan = Karyawan::where('user_id', auth()->id())->first();
-    
+
 
         // Bisa pilih salah satu:
         $periode = now()->format('Y-m'); // Bulanan
@@ -93,4 +98,13 @@ class PelaporanKinerjaController extends Controller
         return redirect()->route('karyawan.pelaporan')->with('success', 'Laporan berhasil dihapus.');
     }
 
+    public function show($id)
+    {
+
+        $pelaporan = PelaporanKinerja::with('karyawan.user')->findOrFail($id);
+        $pelaporan->update([
+            'status' => 'ditinjau'
+        ]);
+        return view('admin.pelaporan_kinerja.review', compact('pelaporan'));
+    }
 }

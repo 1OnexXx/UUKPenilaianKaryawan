@@ -62,8 +62,6 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/laporan_penilaian/edit/{id}', [LaporanPenilaianController::class, 'edit'])->name('admin.laporan_penilaian.edit');
     Route::put('/laporan_penilaian/update/{id}', [LaporanPenilaianController::class, 'update'])->name('admin.laporan_penilaian.update');
     Route::delete('/laporan_penilaian/delete/{id}', [LaporanPenilaianController::class, 'destroy'])->name('admin.laporan_penilaian.delete');
-
-
 });
 
 Route::prefix('karyawan')->middleware(['auth', 'role:karyawan'])->group(function () {
@@ -83,9 +81,7 @@ Route::prefix('karyawan')->middleware(['auth', 'role:karyawan'])->group(function
     Route::delete('/pelaporan/delete/{id}', [PelaporanKinerjaController::class, 'destroy'])->name('karyawan.pelaporan.delete');
 
     Route::get('/riwayat_penilaian', [PenilaianKaryawanController::class, 'index'])->name('karyawan.riwayat_penilaian');
-
-
-}); 
+});
 
 
 Route::prefix('tim_penilai')->middleware(['auth', 'role:tim_penilai'])->group(function () {
@@ -99,8 +95,9 @@ Route::prefix('tim_penilai')->middleware(['auth', 'role:tim_penilai'])->group(fu
     Route::put('/riwayat_penilaian/update/{id}', [PenilaianKaryawanController::class, 'update'])->name('tim_penilai.riwayat_penilaian.update');
     Route::delete('/riwayat_penilaian/delete/{id}', [PenilaianKaryawanController::class, 'destroy'])->name('tim_penilai.riwayat_penilaian.delete');
 
-    
+    Route::get('/jurnal/show/{id}', [PenilaianKaryawanController::class, 'showJ'])->name('tim_penilai.jurnal.show'); // ganti 'tim_penilai' sesuai role
 
+    Route::get('/laporan/show/{id}', [PenilaianKaryawanController::class, 'showL'])->name('tim_penilai.laporan.show');
 });
 
 
@@ -113,6 +110,8 @@ Route::prefix('kepala_sekolah')->middleware(['auth', 'role:kepala_sekolah'])->gr
     Route::put('/laporan_penilaian/update/{id}', [LaporanPenilaianController::class, 'update'])->name('kepala_sekolah.laporan_penilaian.update');
     Route::delete('/laporan_penilaian/delete/{id}', [LaporanPenilaianController::class, 'destroy'])->name('kepala_sekolah.laporan_penilaian.delete');
 
+    Route::get('/pelaporan', [PelaporanKinerjaController::class, 'index'])->name('kepala_sekolah.pelaporan');
+    Route::get('/pelaporan/review/{id}', [PelaporanKinerjaController::class, 'show'])->name('kepala_sekolah.pelaporan.review');
 });
 
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');

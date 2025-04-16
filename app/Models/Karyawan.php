@@ -48,4 +48,6 @@ class Karyawan extends Model
         return $this->hasMany(LaporanPenilaian::class , 'karyawan_id' , 'id');
     }
 
+    
+
 }

@@ -9,27 +9,38 @@ use App\Models\LaporanPenilaian;
 class LaporanController extends Controller
 {
     public function generateLaporan(Request $request)
-    {
-        // Validasi input jika diperlukan
-        $request->validate([
-            'jenis_laporan' => 'required|in:bulanan,semester,tahunan',
-        ]);
+{
+    // Validasi input
+    $request->validate([
+        'jenis_laporan' => 'required|in:bulanan,semester,tahunan',
+    ]);
 
-        // Ambil laporan berdasarkan jenis laporan yang dipilih
-        $laporan = LaporanPenilaian::where('jenis_laporan', $request->jenis_laporan)
-            ->with('karyawan.user') // Relasi ke tabel karyawan dan user untuk mengambil nama dan email
-            ->get();
+    // Ambil data laporan dengan relasi lengkap
+    $laporan = LaporanPenilaian::with([
+        'karyawan.user',
+        'karyawan.divisi',
+        'karyawan.penilaian' => function ($query) use ($request) {
+            $query->where('periode', $request->jenis_laporan)
+                  ->with(['kategori', 'penilai']);
+        },
+        'karyawan.jurnal',
+        'karyawan.laporan_kinerja' => function ($query) use ($request) {
+            $query->where('periode', $request->jenis_laporan);
+        },
+        'dibuatOleh', // relasi ke user yang membuat laporan
+    ])
+    ->where('jenis_laporan', $request->jenis_laporan)
+    ->get();
 
-        // Jika diminta dalam bentuk PDF
-        if ($request->has('download_pdf') && $request->download_pdf == 'true') {
-            // Load view yang akan dijadikan PDF
-            $pdf = Pdf::loadView('admin.laporan_penilaian.pdf', compact('laporan'));
-            // Download file PDF
-            return $pdf->download('laporan_penilaian_' . $request->jenis_laporan . '.pdf');
-        }
-
-        // Jika tidak dalam format PDF, kembalikan ke view biasa
-        return view('admin.laporan_penilaian.index', compact('laporan'));
+    // Cek apakah ingin di-download sebagai PDF
+    if ($request->boolean('download_pdf')) {
+        $pdf = Pdf::loadView('admin.laporan_penilaian.pdf', compact('laporan'));
+        return $pdf->download('laporan_penilaian_' . $request->jenis_laporan . '.pdf');
     }
+
+    // Jika tidak dalam format PDF, tampilkan di view biasa
+    return view('admin.laporan_penilaian.index', compact('laporan'));
+}
+
 
 }

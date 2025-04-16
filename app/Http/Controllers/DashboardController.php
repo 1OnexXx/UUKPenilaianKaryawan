@@ -1,11 +1,13 @@
 <?php
 
 namespace App\Http\Controllers;
+
+use App\Models\Divisi;
 use App\Models\Karyawan;
 use Illuminate\Http\Request;
+
+
 use Illuminate\Support\Carbon;
-
-
 use App\Models\PenilaianKaryawan;
 use Illuminate\Support\Facades\DB;
 
@@ -17,7 +19,6 @@ class DashboardController extends Controller
         $now = Carbon::now();
 
         $data = [
-            'jumlah_karyawan' => Karyawan::count(),
 
             // Jumlah penilaian bulan ini
             'jumlah_penilaian_bulan_ini' => PenilaianKaryawan::whereMonth('created_at', $now->month)
@@ -65,8 +66,9 @@ class DashboardController extends Controller
         if ($nilaiBulanLalu) {
             $kenaikan = (($nilaiBulanIni - $nilaiBulanLalu) / $nilaiBulanLalu) * 100;
         }
+        // Mengambil semua divisi dengan jumlah karyawan
+        $divisi = Divisi::withCount('karyawan')->get();
 
-        return view('admin.dashboard', compact('data', 'topKaryawan', 'nilaiChart','nilaiTertinggi', 'kenaikan'));
+        return view('admin.dashboard', compact('data', 'topKaryawan', 'nilaiChart', 'nilaiTertinggi', 'kenaikan', 'divisi'));
     }
-
 }

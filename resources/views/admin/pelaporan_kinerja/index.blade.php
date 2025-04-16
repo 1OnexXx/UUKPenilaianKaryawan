@@ -1,18 +1,23 @@
 <x-layout.main>
     <link rel="stylesheet" href="{{ asset('assets/css/bootstrap.css') }}">
-        <link rel="stylesheet" href="{{ asset('assets/vendors/simple-datatables/style.css') }}">
-        <link rel="stylesheet" href="{{ asset('assets/vendors/perfect-scrollbar/perfect-scrollbar.css') }}">
-        <link rel="stylesheet" href="{{ asset('assets/css/app.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/vendors/simple-datatables/style.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/vendors/perfect-scrollbar/perfect-scrollbar.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/app.css') }}">
     <x-slot name="title">
         Pelaporan Kinerja
     </x-slot>
     <section class="section">
         <div class="card">
+            @php
+                $role = Auth::user()->role;
+            @endphp
             <div class="card-header d-flex justify-content-between align-items-center">
                 <span>Pelaporan Kinerja Datatable</span>
-                <a href="{{ route('karyawan.pelaporan.create') }}" class="btn btn-primary">
-                    <i class="bi bi-plus"></i> Tambah Data
-                </a>
+                @if ($role == 'karyawan')
+                    <a href="{{ route('karyawan.pelaporan.create') }}" class="btn btn-primary">
+                        <i class="bi bi-plus"></i> Tambah Data
+                    </a>
+                @endif
             </div>
             <div class="card-body">
                 @if (session('success'))
@@ -40,29 +45,37 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach ($pelaporan as $p )
-                        <tr>
-                            <td>{{ $loop->iteration }} </td>
-                            <td>{{ $p->karyawan->user->nama_lengkap }}</td>
-                            <td>{{ $p->karyawan->user->email }}</td>
-                            <td>{{ $p->periode }}</td>
-                            <td>{{ $p->isi_laporan }}</td>
-                            <td>{{ $p->status }}</td>
-                            <td>
-                                <a href="{{ route('karyawan.pelaporan.edit', $p->id) }}"  class="btn btn-sm btn-warning">
-                                    <i class="bi bi-pencil-square"></i>
-                                    Edit
-                                </a>
-                                <form action="{{ route('karyawan.pelaporan.delete', $p->id) }}" method="POST" class="d-inline" onclick="return confirm('Apakah anda yakin ingin menghapus data ini?')">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn btn-sm btn-danger">
-                                        <i class="bi bi-trash"></i>
-                                        Hapus
-                                    </button>
-                                </form>
-                            </td>
-                        </tr>
+                        @foreach ($pelaporan as $p)
+                            <tr>
+                                <td>{{ $loop->iteration }} </td>
+                                <td>{{ $p->karyawan->user->nama_lengkap }}</td>
+                                <td>{{ $p->karyawan->user->email }}</td>
+                                <td>{{ $p->periode }}</td>
+                                <td>{{ $p->isi_laporan }}</td>
+                                <td>{{ $p->status }}</td>
+                                <td>
+                                    @if ($role == 'karyawan')
+                                        <a href="{{ route('karyawan.pelaporan.edit', $p->id) }}"
+                                            class="btn btn-sm btn-warning">
+                                            <i class="bi bi-pencil-square"></i>
+                                            Edit
+                                        </a>
+                                        <form action="{{ route('karyawan.pelaporan.delete', $p->id) }}" method="POST"
+                                            class="d-inline"
+                                            onclick="return confirm('Apakah anda yakin ingin menghapus data ini?')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-sm btn-danger">
+                                                <i class="bi bi-trash"></i>
+                                                Hapus
+                                            </button>
+                                        </form>
+                                    @else
+                                    <a href="{{route($role . '.pelaporan.review', $p->id)}}" class="btn btn-sm btn-info">Lihat detail</a>
+                                    @endif
+
+                                </td>
+                            </tr>
                         @endforeach
                     </tbody>
                 </table>

@@ -10,23 +10,36 @@
     <section class="section">
         @if (Auth::user()->role != 'karyawan')
             <div class="row mb-2">
-                <div class="col-12 col-md-3">
-                    <div class="card card-statistic">
-                        <div class="card-body p-0">
-                            <div class="d-flex flex-column">
-                                <div class='px-3 py-3 d-flex justify-content-between'>
-                                    <h3 class='card-title' style="font-size: 16px;">Jumlah Karyawan</h3>
-                                    <div class="card-right d-flex align-items-center">
-                                        <p>{{ $data['jumlah_karyawan'] }} </p>
+                <div class="row">
+                    @foreach ($divisi as $item)
+                        <div class="col-12 col-md-6">
+                            <div class="card card-statistic">
+                                <div class="card-body p-0">
+                                    <div class="d-flex flex-column">
+                                        <!-- Header Card -->
+                                        <div class="px-3 py-3 d-flex justify-content-between align-items-center">
+                                            <h3 class="card-title" style="font-size: 16px; color: #333;">{{ $item->nama_divisi }}</h3>
+                                            <div class="card-right d-flex align-items-center">
+                                                <p class="h4 mb-0" style="font-weight: bold; color: #007bff;">{{ $item->karyawan_count }}</p>
+                                            </div>
+                                        </div>
+                
+                                        <!-- Deskripsi Divisi -->
+                                        <div class="px-3 py-2">
+                                            <p>{{ $item->deskripsi }}</p>
+                                        </div>
+                
+                                        <!-- Chart Placeholder (optional, can be added later) -->
+                                        <div class="chart-wrapper">
+                                            <canvas id="canvas{{ $item->id }}" style="height: 100px !important;"></canvas>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="chart-wrapper">
-                                    <canvas id="canvas1" style="height:100px !important"></canvas>
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    @endforeach
                 </div>
+                
                 <div class="col-12 col-md-3">
                     <div class="card card-statistic">
                         <div class="card-body p-0">
