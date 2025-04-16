@@ -114,6 +114,7 @@ Route::prefix('kepala_sekolah')->middleware(['auth', 'role:kepala_sekolah'])->gr
     Route::get('/pelaporan/review/{id}', [PelaporanKinerjaController::class, 'show'])->name('kepala_sekolah.pelaporan.review');
 });
 
+
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login'])->name('login.submit');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
