@@ -1,127 +1,173 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
-    <title>Laporan Penilaian Karyawan</title>
+    <title>Laporan Penilaian {{ ucfirst($jenis_laporan) }}</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            margin: 30px;
-            font-size: 14px;
+            font-family: DejaVu Sans, sans-serif;
+            font-size: 12px;
+            color: #000;
+            margin: 0;
+            padding: 20px;
         }
-        h2, h3 {
+
+        .header,
+        .footer {
             text-align: center;
+            margin-bottom: 20px;
         }
-        .section {
-            margin-bottom: 30px;
+
+        .header h1 {
+            margin: 0;
+            font-size: 18px;
         }
+
+        .header p {
+            margin: 5px 0;
+        }
+
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 10px;
+            margin-bottom: 20px;
         }
-        th, td {
-            padding: 8px;
+
+        th,
+        td {
             border: 1px solid #000;
+            padding: 6px;
+            text-align: left;
         }
-        .gray {
-            background-color: #eee;
+
+        th {
+            background-color: #f0f0f0;
+        }
+
+        .divisi-title {
+            margin-top: 40px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .footer {
+            position: fixed;
+            bottom: 30px;
+            width: 100%;
+            font-size: 10px;
+            text-align: center;
         }
     </style>
 </head>
+
 <body>
-
-<h2>Laporan Penilaian Karyawan</h2>
-<h3>Jenis: {{ ucfirst(request()->jenis_laporan) }} | Periode: {{ $laporan->first()->periode ?? '-' }}</h3>
-
-@foreach($laporan as $lap)
-<div class="section">
-    {{-- Bagian Identitas Karyawan --}}
-    <h4>Identitas Karyawan</h4>
-    <table>
-        <tr><th>Nama Lengkap</th><td>{{ $lap->karyawan->user->nama_lengkap }}</td></tr>
-        <tr><th>Email</th><td>{{ $lap->karyawan->user->email }}</td></tr>
-        <tr><th>NIP</th><td>{{ $lap->karyawan->nip }}</td></tr>
-        <tr><th>Divisi</th><td>{{ $lap->karyawan->divisi->nama_divisi ?? '-' }}</td></tr>
-        <tr><th>Jabatan</th><td>{{ $lap->karyawan->jabatan }}</td></tr>
-        <tr><th>Status</th><td>{{ ucfirst($lap->karyawan->status) }}</td></tr>
+    {{-- Kop Surat Sekolah --}}
+    <table style="width: 100%; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 20px;">
+        <tr>
+            <td style="width: 20%; text-align: center;">
+                <img src="{{ public_path('images/logo_sekolah.png') }}" alt="Logo Sekolah" style="width: 80px;">
+            </td>
+            <td style="width: 60%; text-align: center;">
+                <h1 style="margin: 0; font-size: 18px;">LAPORAN PENILAIAN KARYAWAN</h1>
+                <p style="margin: 5px 0;">Jenis Laporan: {{ ucfirst($jenis_laporan) }}</p>
+                <p style="margin: 5px 0;">Tanggal Cetak: {{ now()->format('d F Y') }}</p>
+            </td>
+            <td style="width: 20%; text-align: center;">
+                <img src="{{ public_path('images/logo_rpl.png') }}" alt="Logo RPL" style="width: 80px;">
+            </td>
+        </tr>
     </table>
 
-    {{-- Bagian Penilaian --}}
-    <h4>Detail Penilaian per Kategori</h4>
-    <table>
-        <thead class="gray">
-            <tr>
-                <th>No</th>
-                <th>Kategori</th>
-                <th>Nilai</th>
-                <th>Komentar</th>
-                <th>Penilai</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach($lap->karyawan->penilaian->where('periode', $lap->periode) as $index => $nilai)
+    {{-- Per Divisi --}}
+    @php
+        $laporanByDivisi = $laporan->groupBy('karyawan.divisi.nama_divisi');
+    @endphp
+
+    @forelse ($laporanByDivisi as $namaDivisi => $dataDivisi)
+        <div class="divisi-title">Divisi: {{ $namaDivisi ?? 'Tanpa Divisi' }}</div>
+
+        <table>
+            <thead>
                 <tr>
-                    <td>{{ $index + 1 }}</td>
-                    <td>{{ $nilai->kategori->nama_kategori }}</td>
-                    <td>{{ $nilai->nilai }}</td>
-                    <td>{{ $nilai->komentar ?? '-' }}</td>
-                    <td>{{ $nilai->penilai->nama_lengkap }}</td>
+                    <th>No</th>
+                    <th>Nama Karyawan</th>
+                    <th>Penilai</th>
+                    <th>Kategori</th>
+                    <th>Nilai</th>
+                    <th>Keterangan</th>
                 </tr>
-            @endforeach
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                @php
+                    $totalNilai = 0;
+                    $jumlahPenilaian = 0;
+                @endphp
 
-    {{-- Bagian Jurnal Harian --}}
-    <h4>Jurnal Harian</h4>
-    <table>
-        <thead class="gray">
-            <tr>
-                <th>Tanggal</th>
-                <th>Uraian</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach($lap->karyawan->jurnalHarian as $jurnal)
+                @foreach ($dataDivisi as $index => $data)
+                    @php
+                        $nilaiKaryawan = $data->karyawan->penilaian_karyawan;
+                    @endphp
+                    <tr>
+                        <td>{{ $index + 1 }}</td>
+                        <td>{{ $data->karyawan->user->nama_lengkap ?? '-' }}</td>
+                        <td>
+                            @foreach ($nilaiKaryawan as $penilaian)
+                                {{ $penilaian->penilai->nama_lengkap ?? '-' }}<br>
+                            @endforeach
+                        </td>
+                        <td>
+                            @foreach ($nilaiKaryawan as $penilaian)
+                                {{ $penilaian->kategori->nama_kategori ?? '-' }}<br>
+                            @endforeach
+                        </td>
+                        <td>
+                            @foreach ($nilaiKaryawan as $penilaian)
+                                {{ $penilaian->nilai ?? '-' }}<br>
+                                @php
+                                    if ($penilaian->nilai) {
+                                        $totalNilai += $penilaian->nilai;
+                                        $jumlahPenilaian++;
+                                    }
+                                @endphp
+                            @endforeach
+                        </td>
+                        <td>
+                            @foreach ($nilaiKaryawan as $penilaian)
+                                {{ $penilaian->rekomendasi ?? '-' }}<br>
+                            @endforeach
+                        </td>
+                    </tr>
+                @endforeach
+
+                {{-- Rata-rata dan status --}}
+                @php
+                    $rata2 = $jumlahPenilaian > 0 ? $totalNilai / $jumlahPenilaian : 0;
+                    $status = $rata2 >= 80 ? 'Baik' : 'Harus Ditingkatkan';
+                @endphp
                 <tr>
-                    <td>{{ $jurnal->tanggal }}</td>
-                    <td>{{ $jurnal->uraian }}</td>
+                    <td colspan="4" style="text-align: right; font-weight: bold;">Rata-rata Nilai</td>
+                    <td colspan="2" style="text-align: center; font-weight: bold;">
+                        {{ number_format($rata2, 2) }}
+                    </td>
                 </tr>
-            @endforeach
-        </tbody>
-    </table>
-
-    {{-- Laporan Kinerja --}}
-    <h4>Pelaporan Kinerja</h4>
-    <table>
-        <thead class="gray">
-            <tr>
-                <th>Periode</th>
-                <th>Isi Laporan</th>
-                <th>Status</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach($lap->karyawan->laporanKinerja->where('periode', $lap->periode) as $kinerja)
                 <tr>
-                    <td>{{ $kinerja->periode }}</td>
-                    <td>{{ $kinerja->isi_laporan }}</td>
-                    <td>{{ ucfirst($kinerja->status) }}</td>
+                    <td colspan="4" style="text-align: right; font-weight: bold;">Status</td>
+                    <td colspan="2" style="text-align: center; font-weight: bold;">
+                        {{ $status }}
+                    </td>
                 </tr>
-            @endforeach
-        </tbody>
-    </table>
+            </tbody>
+        </table>
+    @empty
+        <p style="text-align: center;">Data tidak tersedia</p>
+    @endforelse
 
-    {{-- Rangkuman Nilai --}}
-    <h4>Rangkuman Penilaian</h4>
-    <table>
-        <tr><th>Rata-Rata Nilai</th><td>{{ $lap->rata_rata_nilai }}</td></tr>
-        <tr><th>Rekomendasi</th><td>{{ $lap->rekomendasi ?? '-' }}</td></tr>
-        <tr><th>Dicatat Oleh</th><td>{{ $lap->dibuat_oleh ? \App\Models\User::find($lap->dibuat_oleh)->nama_lengkap : 'Admin' }}</td></tr>
-    </table>
-</div>
-<hr style="margin: 50px 0;">
-@endforeach
+    {{-- Footer --}}
+    <div class="footer">
+        Dicetak oleh sistem pada {{ now()->format('d-m-Y H:i') }}
+    </div>
 
 </body>
+
 </html>

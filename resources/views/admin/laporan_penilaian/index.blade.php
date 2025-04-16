@@ -49,11 +49,23 @@
                                                     <option value="tahunan">Tahunan</option>
                                                 </select>
                                             </div>
-                                        
+                                            
+                                            <div class="form-group mb-3">
+                                                <label for="divisi" class="form-label">Pilih Divisi</label>
+                                                <select name="divisi" id="divisi" class="form-control">
+                                                    <option value="all" selected>-- Semua Divisi --</option>
+                                                    <!-- List divisi yang ada di database -->
+                                                    @foreach($divisiList as $divisi)
+                                                        <option value="{{ $divisi->id }}">{{ $divisi->nama_divisi }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                            
                                             <button type="submit" class="btn btn-success">
                                                 <i class="fas fa-file-download"></i> Download PDF
                                             </button>
                                         </form>
+                                        
                                         
 
                                     </div>

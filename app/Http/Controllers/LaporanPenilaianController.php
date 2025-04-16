@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Divisi;
 use App\Models\Karyawan;
 use Illuminate\Http\Request;
 use App\Models\LaporanPenilaian;
@@ -13,7 +14,8 @@ class LaporanPenilaianController extends Controller
     public function index()
     {
         $laporan = LaporanPenilaian::with(['karyawan.user', 'dibuatOleh',])->get();
-        return view('admin.laporan_penilaian.index', compact('laporan'));
+        $divisiList = Divisi::select('id', 'nama_divisi')->groupBy('nama_divisi', 'id')->get();
+        return view('admin.laporan_penilaian.index', compact('laporan', 'divisiList'));	
     }
 
     public function create()
