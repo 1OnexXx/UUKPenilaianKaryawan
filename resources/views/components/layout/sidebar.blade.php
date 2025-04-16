@@ -167,8 +167,8 @@
                             <i data-feather="trending-up" width="20"></i>
                             <span>Monitoring penilaian</span>
                         </a>
-                    </li>
-                     --}}
+                    </li> --}}
+
                 @endif
 
                 <!-- sidebar kepala sekolah end  -->

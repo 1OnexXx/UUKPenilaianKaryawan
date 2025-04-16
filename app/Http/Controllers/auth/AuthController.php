@@ -65,6 +65,6 @@ class AuthController extends Controller
     protected function logoutWithError()
     {
         Auth::logout();
-        return redirect()->route('auth.login')->with('error', 'Role tidak dikenali.');
+        return redirect()->route('login')->with('error', 'Role tidak dikenali.');
     }
 }
