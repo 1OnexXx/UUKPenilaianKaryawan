@@ -74,7 +74,7 @@ Route::prefix('karyawan')->middleware(['auth', 'role:karyawan'])->group(function
     Route::get('/jurnal/edit/{id}', [JurnalController::class, 'edit'])->name('karyawan.jurnal.edit');
     Route::put('/jurnal/update/{id}', [JurnalController::class, 'update'])->name('karyawan.jurnal.update');
     Route::delete('/jurnal/delete/{id}', [JurnalController::class, 'destroy'])->name('karyawan.jurnal.delete');
-Route::get('/jurnal/{id}/lampiran', [JurnalController::class, 'lihatLampiran'])->name('karyawan.jurnal.lampiran');
+    Route::get('/jurnal/{id}/lampiran', [JurnalController::class, 'lihatLampiran'])->name('karyawan.jurnal.lampiran');
 
 
     Route::get('/pelaporan', [PelaporanKinerjaController::class, 'index'])->name('karyawan.pelaporan');
@@ -84,7 +84,7 @@ Route::get('/jurnal/{id}/lampiran', [JurnalController::class, 'lihatLampiran'])-
     Route::put('/pelaporan/update/{id}', [PelaporanKinerjaController::class, 'update'])->name('karyawan.pelaporan.update');
     Route::delete('/pelaporan/delete/{id}', [PelaporanKinerjaController::class, 'destroy'])->name('karyawan.pelaporan.delete');
     // Menampilkan file lampiran pelaporan kinerja (download/view)
-Route::get('/pelaporan/lampiran/{lampiran}', [PelaporanKinerjaController::class, 'showLampiran'])->name('karyawan.pelaporan.lampiran');
+    Route::get('/pelaporan/lampiran/{lampiran}', [PelaporanKinerjaController::class, 'showLampiran'])->name('karyawan.pelaporan.lampiran');
 
 
     Route::get('/riwayat_penilaian', [PenilaianKaryawanController::class, 'index'])->name('karyawan.riwayat_penilaian');
@@ -111,13 +111,13 @@ Route::prefix('tim_penilai')->middleware(['auth', 'role:tim_penilai'])->group(fu
     Route::put('/riwayat_penilaian/update/{id}', [PenilaianKaryawanController::class, 'update'])->name('tim_penilai.riwayat_penilaian.update');
     Route::delete('/riwayat_penilaian/delete/{id}', [PenilaianKaryawanController::class, 'destroy'])->name('tim_penilai.riwayat_penilaian.delete');
 
-    Route::get('/jurnal/show/{id}', [PenilaianKaryawanController::class, 'showJ'])->name('tim_penilai.jurnal.show'); // ganti 'tim_penilai' sesuai role
+    Route::get('/jurnal/show/{id}', [PenilaianKaryawanController::class, 'showJ'])->name('tim_penilai.jurnal.show'); 
 
     Route::get('/laporan/show/{id}', [PenilaianKaryawanController::class, 'showL'])->name('tim_penilai.laporan.show');
 
-    Route::put('/jurnal/update/{id}', [PenilaianKaryawanController::class, 'updatee'])->name('tim_penilai.jurnal.update'); // ganti 'tim_penilai' sesuai role   
+    Route::put('/jurnal/update/{id}', [PenilaianKaryawanController::class, 'updatee'])->name('tim_penilai.jurnal.update');
 
-    
+
 
 
 });
@@ -138,9 +138,9 @@ Route::prefix('kepala_sekolah')->middleware(['auth', 'role:kepala_sekolah'])->gr
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/karyawan/profile', [ProfileController::class, 'show'])->name('karyawan.profile');
-Route::get('/admin/profile', [ProfileController::class, 'show'])->name('admin.profile');
-Route::get('/tim_penilai/profile', [ProfileController::class, 'show'])->name('tim_penilai.profile');
-Route::get('/kepala_sekolah/profile', [ProfileController::class, 'show'])->name('kepala_sekolah.profile');
+    Route::get('/admin/profile', [ProfileController::class, 'show'])->name('admin.profile');
+    Route::get('/tim_penilai/profile', [ProfileController::class, 'show'])->name('tim_penilai.profile');
+    Route::get('/kepala_sekolah/profile', [ProfileController::class, 'show'])->name('kepala_sekolah.profile');
 
 
     Route::put('/profile/update', [ProfileController::class, 'update'])->name('profile.update');

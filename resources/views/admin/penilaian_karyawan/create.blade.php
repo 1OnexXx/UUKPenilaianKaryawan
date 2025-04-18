@@ -69,7 +69,11 @@
                         <p class="text-muted">Untuk mencapai nilai standar dalam laporan kinerja, penulisan harus
                             mencakup hal-hal di atas secara detail.</p>
                     </div>
-                    <h5>Jurnal Bulan Ini</h5>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Jurnal Bulan Ini</h5>
+                        <h5 class="mb-0">Jurnal sudah disetujui: {{ $jurnal->where('status', 'disetujui')->count() }}
+                        </h5>
+                    </div>
                     <ul>
                         @forelse ($jurnal->sortByDesc(fn($item) => $item->status === 'dikirim') as $item)
                             <li>

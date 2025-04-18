@@ -35,6 +35,8 @@ class PenilaianKaryawanController extends Controller
         $karyawan = Karyawan::with('user')->findOrFail($karyawan_id);
         $kategori = KategoriPenilaian::all();
 
+        
+
         $bulanIni = Carbon::now()->month;
         $tahunIni = Carbon::now()->year;
 
@@ -128,6 +130,23 @@ class PenilaianKaryawanController extends Controller
 
     public function showL($id)
     {
+        $user = Auth::user();
+        $role = $user->role;
+    
+        // Ambil semua laporan bulan ini
+        $laporanKinerja = PelaporanKinerja::whereMonth('created_at', date('m'))
+            ->whereYear('created_at', date('Y'))
+            ->get();
+    
+        // Ubah status otomatis dari 'dikirim' ke 'ditinjau' jika role adalah tim_penilai atau kepala_sekolah
+        if (in_array($role, ['tim_penilai', 'kepala_sekolah'])) {
+            foreach ($laporanKinerja as $laporan) {
+                if ($laporan->status === 'dikirim') {
+                    $laporan->status = 'ditinjau';
+                    $laporan->save();
+                }
+            }
+        }
         $laporan = PelaporanKinerja::with('karyawan.user')->findOrFail($id);
         return view('tim_penilai.laporan.show', compact('laporan'));
     }
