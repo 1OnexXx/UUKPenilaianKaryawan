@@ -4,7 +4,7 @@
     <link rel="stylesheet" href="{{ asset('assets/vendors/perfect-scrollbar/perfect-scrollbar.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/app.css') }}">
     <x-slot name="title">
-        Jurnal Harian
+        History Jurnal Harian
     </x-slot>
     <section class="section">
         <div class="card">
@@ -13,28 +13,11 @@
             @endphp
             <div class="card-header d-flex justify-content-between align-items-center">
                 <span>Jurnal Datatable</span>
-
-                <a href="{{ route($role . '.jurnal.create') }}" class="btn btn-primary">
-                    <i class="bi bi-plus"></i> Tambah Data
-                </a>
-
-                <form action="{{ route('karyawan.jurnal.approveAll') }}" method="POST" style="display: inline;">
-                    @csrf
-                    <button type="submit" class="btn btn-primary" onclick="return confirm('Yakin ingin menyetujui semua jurnal?')">Kirim Semua</button>
-
-                </form>
-                
-
             </div>
             <div class="card-body">
                 @if (session('success'))
                     <div class="alert alert-success" role="alert">
                         {{ session('success') }}
-                    </div>
-                @endif
-                @if (session('error'))
-                    <div class="alert alert-danger" role="alert">
-                        {{ session('error') }}
                     </div>
                 @endif
                 @if ($errors->any())
@@ -50,11 +33,11 @@
                             <th>NO</th>
                             <th>nama karyawan</th>
                             <th>email</th>
-                            <th>judul</th>
-                            <th>uraian</th>
                             <th>tanggal</th>
+                            <th>uraian</th>
                             <th>lampiran</th>
                             <th>status</th>
+                            <th>komentar</th>
                             <th>action</th>
                         </tr>
                     </thead>
@@ -64,9 +47,8 @@
                                 <td>{{ $loop->iteration }} </td>
                                 <td>{{ $j->karyawan->user->nama_lengkap }}</td>
                                 <td>{{ $j->karyawan->user->email }}</td>
-                                <td>{{ $j->judul }}</td>
-                                <td>{{ $j->uraian }}</td>
                                 <td>{{ $j->tanggal }}</td>
+                                <td>{{ $j->uraian }}</td>
                                 <td>
                                     @if ($j->lampiran->count() > 0)
                                         <a href="{{ route($role . '.jurnal.lampiran', $j->id) }}"
@@ -78,37 +60,36 @@
                                     @endif
 
                                 </td>
-                                <td>
-                                @if ($j->status == 'draft')
-                                <form action="{{ route($role . '.jurnal.approve', $j->id) }}" method="POST">
-                                    @csrf
-                                    @method('PUT')
-                                    <button type="submit" class="btn btn-sm btn-success">
-                                        <i class="bi bi-check"></i>
-                                        kirim
-                                    </button>
-                                </form>
-                                    @else
-                                    {{ $j->status }}
-                                @endif
-                                </td>
+                                <td>{{ $j->status }}</td>
+                                <td>{{ $j->komentar }}</td>
 
                                 <td>
-                                    <a href="{{ route($role . '.jurnal.edit', $j->id) }}"
-                                        class="btn btn-sm btn-warning">
-                                        <i class="bi bi-pencil-square"></i>
-                                        Edit
-                                    </a>
-                                    <form action="{{ route($role . '.jurnal.delete', $j->id) }}" method="POST"
-                                        class="d-inline"
-                                        onclick="return confirm('Apakah anda yakin ingin menghapus data ini?')">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn btn-sm btn-danger">
-                                            <i class="bi bi-trash"></i>
-                                            Hapus
-                                        </button>
-                                    </form>
+                                    @if ($j->status == 'ditolak')
+                                        <a href="{{ route($role . '.jurnal.edit', $j->id) }}"
+                                            class="btn btn-sm btn-warning">
+                                            <i class="bi bi-pencil-square"></i>
+                                            revisi
+                                        </a>
+                                        <form action="{{ route($role . '.jurnal.delete', $j->id) }}" method="post">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-sm btn-danger"
+                                                onclick="return confirm('Apakah Anda yakin ingin menghapus jurnal ini?')">
+                                                <i class="bi bi-trash"></i>
+                                                hapus
+                                            </button>
+                                        </form>
+                                    @else
+                                        <form action="{{ route($role . '.jurnal.delete', $j->id) }}" method="post">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-sm btn-danger"
+                                                onclick="return confirm('Apakah Anda yakin ingin menghapus jurnal ini?')">
+                                                <i class="bi bi-trash"></i>
+                                                hapus
+                                            </button>
+                                        </form>
+                                    @endif
                                 </td>
                             </tr>
                         @endforeach

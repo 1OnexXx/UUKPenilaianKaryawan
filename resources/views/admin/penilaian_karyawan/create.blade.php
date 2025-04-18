@@ -59,17 +59,26 @@
                     <div class="mb-4">
                         <h5 class="fw-bold">Kriteria Penulisan Laporan Kinerja</h5>
                         <ul>
-                            <li><strong>Jurnal dan Penulisan:</strong> Untuk mendapatkan nilai 80, penulisan harus jelas dan terstruktur dengan baik.</li>
-                            <li><strong>Konten Kegiatan:</strong> Kegiatan yang telah dilakukan harus dijelaskan dengan rinci.</li>
-                            <li><strong>Jumlah Jurnal:</strong> 25 jurnal minimum diperlukan untuk mencapai nilai standar.</li>
+                            <li><strong>Jurnal dan Penulisan:</strong> Untuk mendapatkan nilai 80, penulisan harus jelas
+                                dan terstruktur dengan baik.</li>
+                            <li><strong>Konten Kegiatan:</strong> Kegiatan yang telah dilakukan harus dijelaskan dengan
+                                rinci.</li>
+                            <li><strong>Jumlah Jurnal:</strong> 25 jurnal minimum diperlukan untuk mencapai nilai
+                                standar.</li>
                         </ul>
-                        <p class="text-muted">Untuk mencapai nilai standar dalam laporan kinerja, penulisan harus mencakup hal-hal di atas secara detail.</p>
+                        <p class="text-muted">Untuk mencapai nilai standar dalam laporan kinerja, penulisan harus
+                            mencakup hal-hal di atas secara detail.</p>
                     </div>
                     <h5>Jurnal Bulan Ini</h5>
                     <ul>
-                        @forelse ($jurnal as $item)
-                            <li><a href="{{ route($role . '.jurnal.show', $item->id) }}">{{ $item->judul ?? 'Tanpa Judul' }}
-                                    - {{ $item->created_at->format('d M Y') }}</a></li>
+                        @forelse ($jurnal->sortByDesc(fn($item) => $item->status === 'dikirim') as $item)
+                            <li>
+                                <a
+                                    href="{{ route($role . '.jurnal.show', $item->id) }}?back={{ urlencode(url()->full()) }}">
+                                    {{ $item->judul ?? 'Tanpa Judul' }} - {{ $item->created_at->format('d M Y') }} -
+                                    {{ $item->status }}
+                                </a>
+                            </li>
                         @empty
                             <li><em>Tidak ada jurnal bulan ini</em></li>
                         @endforelse

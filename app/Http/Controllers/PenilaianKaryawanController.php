@@ -41,6 +41,7 @@ class PenilaianKaryawanController extends Controller
         $jurnal = Jurnal::with('karyawan.user')
             ->where('karyawan_id', $karyawan_id)
             ->whereMonth('created_at', $bulanIni)
+            ->whereIn('status', ['dikirim', 'disetujui'])
             ->whereYear('created_at', $tahunIni)
             ->get();
 
@@ -116,6 +117,9 @@ class PenilaianKaryawanController extends Controller
 
     public function showJ($id)
     {
+        if (request()->has('back')) {
+            session(['previous_url' => request()->query('back')]);
+        }
         $jurnal = Jurnal::with('karyawan.user')->findOrFail($id);
         return view('tim_penilai.jurnal.show', compact('jurnal'));
     }
@@ -127,4 +131,32 @@ class PenilaianKaryawanController extends Controller
         $laporan = PelaporanKinerja::with('karyawan.user')->findOrFail($id);
         return view('tim_penilai.laporan.show', compact('laporan'));
     }
+
+    public function updatee($id)
+    {
+
+        // Cari jurnal berdasarkan ID
+        $jurnal = Jurnal::find($id);
+
+        if (!$jurnal) {
+            return back()->with('error', 'Jurnal tidak ditemukan.');
+        }
+
+        // Validasi data yang diterima dari form
+        request()->validate([
+            'status' => 'required|string',
+            'komentar' => 'nullable|string|max:255',
+        ]);
+
+        // Update status berdasarkan input form
+        $jurnal->status = request('status');
+        $jurnal->komentar = request('komentar');
+
+        // Simpan perubahan
+        $jurnal->save();
+
+        return back()->with('success', 'penilaian jurnal berhasil dibuat.');
+
+    }
+
 }

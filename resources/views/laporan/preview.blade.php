@@ -66,7 +66,7 @@
     <table style="width: 100%; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 20px;">
         <tr>
             <td style="width: 20%; text-align: center;">
-                <img src="{{ asset('images/logo_sekolah.png') }}" alt="Logo Sekolah" style="width: 80px;">
+                <img src="{{ public_path('images/logo_sekolah.png') }}" alt="Logo Sekolah" style="width: 80px;">
             </td>
             <td style="width: 60%; text-align: center;">
                 <h1 style="margin: 0; font-size: 18px;">LAPORAN PENILAIAN KARYAWAN</h1>
@@ -74,14 +74,12 @@
                 <p style="margin: 5px 0;">Tanggal Cetak: {{ now()->format('d F Y') }}</p>
             </td>
             <td style="width: 20%; text-align: center;">
-                <img src="{{ asset('images/logo_rpl.png') }}" alt="Logo RPL" style="width: 80px;">
+                <img src="{{ public_path('images/logo_rpl.png') }}" alt="Logo RPL" style="width: 80px;">
             </td>
         </tr>
     </table>
 
-    <input type="hidden" hidden>{{ $divisiid }}</input>
-
-
+    {{-- Per Divisi --}}
     @php
         $laporanByDivisi = $laporan->groupBy('karyawan.divisi.nama_divisi');
     @endphp
@@ -170,42 +168,6 @@
         Dicetak oleh sistem pada {{ now()->format('d-m-Y H:i') }}
     </div>
 
-    {{-- Preview Laporan --}}
-    <h3>Preview Laporan Penilaian ({{ ucfirst($jenis_laporan) }})</h3>
-
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th>Nama</th>
-                <th>Divisi</th>
-                <th>Rata-rata Nilai</th>
-                <th>Status</th>
-            </tr>
-        </thead>
-        <tbody>
-            @forelse ($dataKaryawan as $karyawan)
-                <tr>
-                    <td>{{ $karyawan['nama'] }}</td>
-                    <td>{{ $karyawan['divisi'] }}</td>
-                    <td>{{ number_format($karyawan['rata_rata'], 2) }}</td>
-                    <td>{{ $karyawan['status'] }}</td>
-                </tr>
-            @empty
-                <tr>
-                    <td colspan="4" class="text-center">Tidak ada data</td>
-                </tr>
-            @endforelse
-        </tbody>
-    </table>
-    <button onclick="window.print()" class="btn btn-info mt-3">
-        <i class="bi bi-printer"></i> Print Laporan
-    </button>
-    <button onclick="history.back()" class="btn btn-secondary mt-3" style="margin-left: 10px;">
-        ⬅ Kembali
-    </button>
-    
-
 </body>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </html>

@@ -5,6 +5,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\DivisiController;
 use App\Http\Controllers\JurnalController;
 use App\Http\Controllers\LaporanController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\KaryawanController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\DashboardController;
@@ -67,11 +68,14 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->group(function () {
 Route::prefix('karyawan')->middleware(['auth', 'role:karyawan'])->group(function () {
 
     Route::get('/jurnal', [JurnalController::class, 'index'])->name('karyawan.jurnal');
+    Route::get('/jurnal/history', [JurnalController::class, 'history'])->name('karyawan.jurnalL');
     Route::get('/jurnal/create', [JurnalController::class, 'create'])->name('karyawan.jurnal.create');
     Route::post('/jurnal/store', [JurnalController::class, 'store'])->name('karyawan.jurnal.store');
     Route::get('/jurnal/edit/{id}', [JurnalController::class, 'edit'])->name('karyawan.jurnal.edit');
     Route::put('/jurnal/update/{id}', [JurnalController::class, 'update'])->name('karyawan.jurnal.update');
     Route::delete('/jurnal/delete/{id}', [JurnalController::class, 'destroy'])->name('karyawan.jurnal.delete');
+Route::get('/jurnal/{id}/lampiran', [JurnalController::class, 'lihatLampiran'])->name('karyawan.jurnal.lampiran');
+
 
     Route::get('/pelaporan', [PelaporanKinerjaController::class, 'index'])->name('karyawan.pelaporan');
     Route::get('/pelaporan/create', [PelaporanKinerjaController::class, 'create'])->name('karyawan.pelaporan.create');
@@ -79,8 +83,20 @@ Route::prefix('karyawan')->middleware(['auth', 'role:karyawan'])->group(function
     Route::get('/pelaporan/edit/{id}', [PelaporanKinerjaController::class, 'edit'])->name('karyawan.pelaporan.edit');
     Route::put('/pelaporan/update/{id}', [PelaporanKinerjaController::class, 'update'])->name('karyawan.pelaporan.update');
     Route::delete('/pelaporan/delete/{id}', [PelaporanKinerjaController::class, 'destroy'])->name('karyawan.pelaporan.delete');
+    // Menampilkan file lampiran pelaporan kinerja (download/view)
+Route::get('/pelaporan/lampiran/{lampiran}', [PelaporanKinerjaController::class, 'showLampiran'])->name('karyawan.pelaporan.lampiran');
+
 
     Route::get('/riwayat_penilaian', [PenilaianKaryawanController::class, 'index'])->name('karyawan.riwayat_penilaian');
+
+
+    Route::put('/jurnal/{id}/approve', [JurnalController::class, 'approve'])->name('karyawan.jurnal.approve');
+
+    Route::post('/karyawan/jurnal/approve-all', [JurnalController::class, 'approveAll'])->name('karyawan.jurnal.approveAll');
+
+
+    Route::post('/pelaporan/storeOtomatis', [PelaporanKinerjaController::class, 'storeOtomatis'])->name('karyawan.pelaporan.storeOtomatis');
+
 });
 
 
@@ -98,6 +114,12 @@ Route::prefix('tim_penilai')->middleware(['auth', 'role:tim_penilai'])->group(fu
     Route::get('/jurnal/show/{id}', [PenilaianKaryawanController::class, 'showJ'])->name('tim_penilai.jurnal.show'); // ganti 'tim_penilai' sesuai role
 
     Route::get('/laporan/show/{id}', [PenilaianKaryawanController::class, 'showL'])->name('tim_penilai.laporan.show');
+
+    Route::put('/jurnal/update/{id}', [PenilaianKaryawanController::class, 'updatee'])->name('tim_penilai.jurnal.update'); // ganti 'tim_penilai' sesuai role   
+
+    
+
+
 });
 
 
@@ -114,9 +136,19 @@ Route::prefix('kepala_sekolah')->middleware(['auth', 'role:kepala_sekolah'])->gr
     Route::get('/pelaporan/review/{id}', [PelaporanKinerjaController::class, 'show'])->name('kepala_sekolah.pelaporan.review');
 });
 
+Route::middleware(['auth'])->group(function () {
+    Route::get('/karyawan/profile', [ProfileController::class, 'show'])->name('karyawan.profile');
+Route::get('/admin/profile', [ProfileController::class, 'show'])->name('admin.profile');
+Route::get('/tim_penilai/profile', [ProfileController::class, 'show'])->name('tim_penilai.profile');
+Route::get('/kepala_sekolah/profile', [ProfileController::class, 'show'])->name('kepala_sekolah.profile');
+
+
+    Route::put('/profile/update', [ProfileController::class, 'update'])->name('profile.update');
+});
 
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login'])->name('login.submit');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 // web.php
-Route::get('/laporan', [LaporanController::class, 'generateLaporan'])->name('laporan.generate');
+Route::get('/laporan', [LaporanController::class, 'laporan'])->name('laporan.generate');
+Route::get('/laporan/preview', [LaporanController::class, 'laporan'])->name('laporan.preview');

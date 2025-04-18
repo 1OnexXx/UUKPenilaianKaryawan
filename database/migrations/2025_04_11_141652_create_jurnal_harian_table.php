@@ -15,6 +15,10 @@ return new class extends Migration
             $table->id();
             $table->foreignId('karyawan_id')->constrained('karyawan')->onDelete('cascade');
             $table->date('tanggal');
+            $table->string('judul');
+            $table->string('komentar')->nullable();
+            $table->string('komentar_balasan')->nullable();
+            $table->enum('status', ['draft', 'dikirim', 'disetujui', 'ditolak'])->default('draft');
             $table->text('uraian');
             $table->timestamps();
         });

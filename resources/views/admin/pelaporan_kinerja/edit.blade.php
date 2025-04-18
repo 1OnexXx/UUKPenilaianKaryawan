@@ -19,7 +19,7 @@
             @endif
 
             <div class="card-body">
-                <form action="{{ route('karyawan.pelaporan.update' , $pelaporan->id) }}" method="POST">
+                <form action="{{ route('karyawan.pelaporan.update' , $pelaporan->id) }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     @method('PUT')
                     <div class="row">
@@ -34,6 +34,11 @@
                     @error('isi_laporan')
                         <small class="text-danger">{{ $message }}</small>
                     @enderror
+
+                    <label>Lampiran (max 5)</label>
+                    <input type="file" name="lampiran[]" multiple accept=".jpg,.png,.pdf,.doc,.docx,.mp4">
+
+
 
                     <div class="mt-4">
                         <button type="submit" class="btn btn-primary">Simpan</button>

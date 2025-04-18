@@ -19,4 +19,9 @@ class PelaporanKinerja extends Model
         return $this->belongsTo(Karyawan::class, 'karyawan_id');
     }
 
+    public function lampiran2()
+{
+    return $this->morphMany(\App\Models\Lampiran::class, 'lampiranable');
+}
+
 }

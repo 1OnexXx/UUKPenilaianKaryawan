@@ -15,7 +15,8 @@
             </div>
 
             <div class="card-body">
-                <form action="{{ route($role . '.jurnal.update', $jurnal->id) }}" method="POST">
+                <form action="{{ route($role . '.jurnal.update', $jurnal->id) }}" method="POST"
+                    enctype="multipart/form-data">
                     @csrf
                     @method('PUT')
 
@@ -29,7 +30,7 @@
                                 </option>
                                 @foreach ($karyawan as $item)
                                     <option value="{{ $item->id }}"
-                                        {{ old('karyawan_id', $jurnal->karyawan_id) == $item->id ? 'selected' : '' }} disabled>
+                                        {{ old('karyawan_id', $jurnal->karyawan_id) == $item->id ? 'selected' : '' }}>
                                         {{ $item->user->nama_lengkap ?? 'Nama tidak tersedia' }}
                                     </option>
                                 @endforeach
@@ -37,7 +38,21 @@
                         </div>
                     @endif
 
-
+                    <div class="row">
+                        <div class="col-12 mt-3">
+                            <div class="form-group">
+                                <label for="judul">Judul</label>
+                                <input type="text" class="form-control" id="judul" name="judul"
+                                    placeholder="Contoh: Menyusun laporan keuangan harian..."
+                                    value="{{ old('judul', $jurnal->judul) }}">
+                                <small class="text-muted">Tuliskan uraian kegiatan harian Anda di sini.</small>
+                            </div>
+                        </div>
+                    </div>
+                    @error('judul')
+                        <small class="text-danger">{{ $message }}</small>
+                    @enderror
+                    
 
                     <div class="row">
                         <div class="col-12 mt-3">
@@ -53,11 +68,51 @@
                         <small class="text-danger">{{ $message }}</small>
                     @enderror
 
+                    <div class="form-group mt-3">
+                        <label for="lampiran">Lampiran</label>
+                        <input type="file" class="form-control" name="lampiran[]" id="lampiran" multiple>
+                        <small class="text-muted">Max 5 lampiran (jpg, jpeg, png, pdf, doc, docx, mp4).</small>
+                    </div>
+                    @error('lampiran')
+                        <small class="text-danger">{{ $message }}</small>
+                    @enderror
+
+                    <div class="row">
+                        <div class="col-12 mt-3">
+                            <div class="form-group">
+                                <label for="komentar">komentar</label>
+                                <input type="text" class="form-control" id="komentar" name="komentar"
+                                    placeholder="Contoh: Menyusun laporan keuangan harian..."
+                                    value="{{ old('komentar', $jurnal->komentar) }}" readonly>
+                                <small class="text-muted"> komentar dari penilai </small>
+                            </div>
+                        </div>
+                    </div>
+                    @error('komentar')
+                        <small class="text-danger">{{ $message }}</small>
+                    @enderror
+
+                    
+                    <div class="row">
+                        <div class="col-12 mt-3">
+                            <div class="form-group">
+                                <label for="komentar_balasan">komentar balasan</label>
+                                <input type="text" class="form-control" id="komentar_balasan" name="komentar_balasan"
+                                    placeholder="Contoh: Menyusun laporan keuangan harian...">
+                                <small class="text-muted">beri komentar untuk lampiran ini </small>
+                            </div>
+                        </div>
+                    </div>
+                    @error('komentar_balasan')
+                        <small class="text-danger">{{ $message }}</small>
+                    @enderror
+
                     <div class="mt-4">
                         <button type="submit" class="btn btn-primary">Simpan</button>
                         <button type="reset" class="btn btn-light">Reset</button>
                     </div>
                 </form>
+
             </div>
         </div>
     </section>

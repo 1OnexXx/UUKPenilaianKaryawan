@@ -99,6 +99,13 @@
                         </a>
                     </li>
 
+                    <li class="sidebar-item">
+                        <a href="{{ route($role . '.jurnalL') }}" class='sidebar-link'>
+                            <i data-feather="book-open" width="20"></i>
+                            <span>Jurnal sudah dinilai</span>
+                        </a>
+                    </li>
+
 
                     {{-- <li class="sidebar-item">
                         <a href="#" class='sidebar-link'>
