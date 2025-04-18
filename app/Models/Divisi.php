@@ -16,5 +16,10 @@ class Divisi extends Model
     {
         return $this->hasMany(Karyawan::class);
     }
+
+    public function target_kinerja()
+    {
+        return $this->hasMany(TargetKinerja::class);
+    }
     
 }

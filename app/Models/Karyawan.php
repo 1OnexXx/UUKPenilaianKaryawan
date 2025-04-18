@@ -48,6 +48,9 @@ class Karyawan extends Model
         return $this->hasMany(LaporanPenilaian::class , 'karyawan_id' , 'id');
     }
 
-    
+    public function target_kinerja()
+    {
+        return $this->hasMany(TargetKinerja::class , 'karyawan_id' , 'id');
+    }
 
 }

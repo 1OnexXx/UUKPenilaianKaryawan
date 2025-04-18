@@ -47,9 +47,9 @@ class User extends Authenticatable
     }
 
     public function karyawan()
-{
-    return $this->hasOne(Karyawan::class);
-}
+    {
+        return $this->hasOne(Karyawan::class);
+    }
 
     public function penilaian_karyawan()
     {
@@ -62,8 +62,18 @@ class User extends Authenticatable
     }
 
     public function detail()
-{
-    return $this->hasOne(Karyawan::class, 'user_id');
-}
+    {
+        return $this->hasOne(Karyawan::class, 'user_id');
+    }
+
+    public function target_kinerja()
+    {
+        return $this->hasMany(TargetKinerja::class, 'dibuat_oleh', 'id');
+    }
+
+    public function penilaians()
+    {
+        return $this->hasMany(TargetKinerja::class, 'dibuat_oleh');
+    }
 
 }

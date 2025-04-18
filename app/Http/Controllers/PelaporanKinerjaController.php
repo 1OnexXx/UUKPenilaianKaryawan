@@ -7,7 +7,9 @@ use App\Models\Karyawan;
 use App\Models\Lampiran;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use App\Models\TargetKinerja;
 use App\Models\PelaporanKinerja;
+use App\Models\KategoriPenilaian;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
@@ -24,7 +26,8 @@ class PelaporanKinerjaController extends Controller
         } else {
             $pelaporan = PelaporanKinerja::whereHas('karyawan', function ($query) use ($userId) {
                 $query->where('user_id', $userId);
-            })->with(['karyawan.user'])->get();
+            })->with(['karyawan.user', 'targetKinerja'])->get();
+
         }
 
         return view('admin.pelaporan_kinerja.index', compact('pelaporan'));
@@ -32,33 +35,103 @@ class PelaporanKinerjaController extends Controller
 
     public function create()
     {
-        return view('admin.pelaporan_kinerja.create');
+        $user = auth()->user();
+        $karyawan = $user->karyawan;
+
+        if (!$karyawan) {
+            return back()->with('error', 'Data karyawan tidak ditemukan.');
+        }
+
+        $targets = TargetKinerja::where(function ($query) use ($karyawan) {
+            $query->where(function ($sub) {
+                $sub->whereNull('karyawan_id')->whereNull('divisi_id'); // Umum
+            })
+                ->orWhere(function ($sub) use ($karyawan) {
+                    $sub->whereNull('karyawan_id')->where('divisi_id', $karyawan->divisi_id); // Divisi
+                })
+                ->orWhere(function ($sub) use ($karyawan) {
+                    $sub->where('karyawan_id', $karyawan->id); // Pribadi
+                });
+        })->get();
+
+        return view('admin.pelaporan_kinerja.create', compact('targets'));
     }
 
     public function store(Request $request)
     {
-        $bulan = PelaporanKinerja::where('periode', now()->format('Y-m'))->first();
-        if ($bulan) {
-            return redirect()->back()->with('error', 'Laporan sudah ada untuk bulan ini.');
-        }
-
+        // dd($request->all());    
         $request->validate([
+            'target_kinerja_id' => 'required|exists:target_kinerja,id',
             'isi_laporan' => 'required|string',
             'lampiran.*' => 'nullable|file|mimes:jpg,jpeg,png,pdf,doc,docx,mp4|max:20480',
         ]);
 
-        // Cari karyawan berdasarkan user yang sedang login
         $karyawan = Karyawan::where('user_id', auth()->id())->first();
 
-        $periode = now()->format('Y-m'); // Bulanan
+        if (!$karyawan) {
+            return back()->with('error', 'Data karyawan tidak ditemukan.');
+        }
 
-        // Simpan laporan
+        // Ambil target kinerja yang dipilih
+        $target = TargetKinerja::findOrFail($request->target_kinerja_id);
+
+        // Validasi: apakah target ini memang untuk karyawan login?
+        $authorized = (
+            (is_null($target->karyawan_id) && is_null($target->divisi_id)) || // Umum
+            ($target->karyawan_id == $karyawan->id) || // Personal
+            (is_null($target->karyawan_id) && $target->divisi_id == $karyawan->divisi_id) || // Divisi
+            ($target->karyawan_id == $karyawan->id && $target->divisi_id == $karyawan->divisi_id) // Spesifik
+        );
+
+        if (!$authorized) {
+            return back()->with('error', 'Kamu tidak berhak melaporkan target ini.');
+        }
+
+        // Cek apakah sudah pernah melapor untuk target ini
+        $existing = PelaporanKinerja::where('karyawan_id', $karyawan->id)
+            ->where('target_kinerja_id', $request->target_kinerja_id)
+            ->exists();
+
+        if ($existing) {
+            return back()->with('error', 'Kamu sudah mengirim laporan untuk target ini.');
+        }
+
+
+
+        // Ambil ID jurnal harian yg sudah dikirim oleh karyawan ini
+        $jurnalIds = Jurnal::where('karyawan_id', $karyawan->id)
+            ->where('status', 'disetujui')
+            ->pluck('id');
+
+        // Hitung jumlah lampiran dokumen dari jurnal2 tadi
+        $jumlahLampiranDokumen = Lampiran::whereIn('lampiranable_id', $jurnalIds)
+            ->where('lampiranable_type', Jurnal::class)
+            ->whereIn('file_type', ['pdf', 'doc', 'docx'])
+            ->count();
+
+        $jumlah_laporan = $jumlahLampiranDokumen;
+
+        $target = TargetKinerja::find($request->target_kinerja_id);
+
+
+        $skor_objektif = 0;
+        if ($target && $target->target_laporan > 0 && $jumlah_laporan > 0) {
+            $skor_objektif = ($jumlah_laporan / $target->target_laporan) * 100;
+            $skor_objektif = round(min($skor_objektif, 100), 0); // biar hasilnya antara 0 - 100 dan dibuletin
+        }
+
+        // dd($skor_objektif);
+
         $pelaporan = PelaporanKinerja::create([
             'karyawan_id' => $karyawan->id,
-            'periode' => $periode,
+            'target_kinerja_id' => $request->target_kinerja_id,
+            'periode' => now()->format('F Y'), // Contoh: April 2025
+            'skor_objektif' => $skor_objektif,
+            'jumlah_laporan' => $jumlah_laporan,
             'isi_laporan' => $request->isi_laporan,
             'status' => 'dikirim',
         ]);
+
 
         // Simpan lampiran jika ada
         if ($request->hasFile('lampiran')) {
@@ -69,9 +142,8 @@ class PelaporanKinerjaController extends Controller
             }
 
             foreach ($files as $file) {
-                // Menyimpan file lampiran
                 $path = $file->store('lampiran', 'public');
-                $file_type = $file->getClientOriginalExtension(); // Dapatkan ekstensi file
+                $file_type = $file->getClientOriginalExtension();
 
                 $pelaporan->lampiran2()->create([
                     'file_path' => $path,
@@ -82,6 +154,7 @@ class PelaporanKinerjaController extends Controller
 
         return redirect()->route('karyawan.pelaporan')->with('success', 'Laporan berhasil dikirim.');
     }
+
 
     public function edit($id)
     {
@@ -183,17 +256,22 @@ class PelaporanKinerjaController extends Controller
 
     private function getFileType($file)
     {
-        $mime = $file->getMimeType();
-        if (str_starts_with($mime, 'image'))
+        $extension = strtolower($file->getClientOriginalExtension());
+
+        if (in_array($extension, ['jpg', 'jpeg', 'png']))
             return 'image';
-        if (str_contains($mime, 'pdf'))
+        if ($extension === 'pdf')
             return 'pdf';
-        if (str_contains($mime, 'msword') || str_contains($mime, 'officedocument'))
-            return 'doc';
-        if (str_contains($mime, 'video'))
+        if (in_array($extension, ['doc', 'docx']))
+            return $extension;
+        if (in_array($extension, ['xls', 'xlsx']))
+            return $extension;
+        if ($extension === 'mp4')
             return 'video';
+
         return 'unknown';
     }
+
 
     public function lihatLampiran($id)
     {
@@ -224,87 +302,6 @@ class PelaporanKinerjaController extends Controller
         return response()->file(storage_path('app/public/' . $lampiran->file_path));
     }
 
-    public function storeOtomatis(Request $request)
-    {
-        $user = auth()->user(); // Mengambil pengguna yang sedang login
-        $userId = $user->id; // Mendapatkan user_id dari pengguna yang sedang login
-
-        // Cari karyawan_id berdasarkan user_id di tabel karyawan
-        $karyawan = Karyawan::where('user_id', $userId)->first();
-
-        // Jika karyawan ditemukan, lanjutkan dengan query jurnal
-        if ($karyawan) {
-            // Cek apakah sudah ada pelaporan untuk bulan ini
-            $existingReport = DB::table('pelaporan_kinerja')
-                ->where('karyawan_id', $karyawan->id)
-                ->where('periode', now()->format('F Y')) // Cek berdasarkan bulan dan tahun
-                ->first();
-
-            // Jika sudah ada pelaporan untuk bulan ini, tampilkan pesan error
-            if ($existingReport) {
-                return back()->with('error', 'Anda sudah mengirimkan pelaporan untuk bulan ini.');
-            }
-
-            // Gunakan karyawan_id untuk mencari jurnal yang disetujui
-            $jurnals = Jurnal::where('karyawan_id', $karyawan->id) // karyawan_id dari tabel karyawan
-                ->where('status', 'disetujui')
-                ->orderBy('tanggal', 'asc')
-                ->get();
-
-            // Jika tidak ada jurnal yang disetujui, tampilkan pesan error
-            if ($jurnals->isEmpty()) {
-                return back()->with('error', 'Tidak ada jurnal harian yang disetujui.');
-            }
-
-            // Gabungkan semua jurnal menjadi isi laporan
-            $isiLaporan = '';
-            foreach ($jurnals as $jurnal) {
-                $isiLaporan .= "- [" . date('d M Y', strtotime($jurnal->tanggal)) . "] ";
-                $isiLaporan .= $jurnal->judul . "\n";
-                $isiLaporan .= strip_tags($jurnal->uraian) . "\n\n";
-            }
-
-            // Simpan laporan ke dalam tabel pelaporan_kinerja
-            $pelaporanId = DB::table('pelaporan_kinerja')->insertGetId([
-                'karyawan_id' => $karyawan->id, // Menggunakan karyawan_id yang ditemukan
-                'periode' => now()->format('F Y'), // Contoh: April 2025
-                'isi_laporan' => $isiLaporan,
-                'status' => 'dikirim',
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
-
-            // Validasi dan simpan lampiran jika ada
-            if ($request->hasFile('lampiran')) {
-                // Validasi jenis file dan ukuran (misalnya hanya image dan max 2MB)
-                $request->validate([
-                    'lampiran.*' => 'mimes:jpg,jpeg,png,pdf|max:2048',
-                ]);
-
-                // Simpan setiap file lampiran
-                foreach ($request->file('lampiran') as $file) {
-                    $filename = time() . '_' . Str::random(10) . '.' . $file->getClientOriginalExtension();
-                    $path = $file->storeAs('lampiran_pelaporan', $filename, 'public');
-
-                    Log::info($file->getClientMimeType()); // Cek tipe MIME
-
-                    DB::table('lapiran')->insert([
-                        'lampiranable_id' => $pelaporanId,
-                        'lampiranable_type' => 'App\Models\PelaporanKinerja', // Pastikan model PelaporanKinerja digunakan
-                        'file_path' => $path,
-                        'file_type' => $file->getClientMimeType(), // Tipe MIME file
-                        'created_at' => now(),
-                        'updated_at' => now(),
-                    ]);
-                }
-            }
-        } else {
-            return back()->with('error', 'Karyawan tidak ditemukan.');
-        }
-
-        // Redirect kembali dengan pesan sukses
-        return redirect()->back()->with('success', 'Pelaporan otomatis berhasil dikirim.');
-    }
 
 
 }

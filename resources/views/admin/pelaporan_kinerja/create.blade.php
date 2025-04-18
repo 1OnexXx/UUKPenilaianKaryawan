@@ -21,6 +21,18 @@
             <div class="card-body">
                 <form action="{{ route('karyawan.pelaporan.store') }}" method="POST" enctype="multipart/form-data">
                     @csrf
+
+                    <label for="target_kinerja_id">Pilih Target Kinerja:</label>
+                    <select name="target_kinerja_id" class="form-control" required>
+                        @foreach($targets as $target)
+                            <option value="{{ $target->id }}">{{ $target->judul_target }}</option>
+                        @endforeach
+                    </select>
+                    @error('target_kinerja_id')
+                        <small class="text-danger">{{ $message }}</small>
+                    @enderror
+                    
+                    
                     <div class="row">
                         <div class="col-12 mt-3">
                             <div class="form-group">

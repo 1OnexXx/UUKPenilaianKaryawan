@@ -13,6 +13,7 @@ use App\Http\Controllers\LaporanPenilaianController;
 use App\Http\Controllers\PelaporanKinerjaController;
 use App\Http\Controllers\KategoriPenilaianController;
 use App\Http\Controllers\PenilaianKaryawanController;
+use App\Http\Controllers\TargetKinerjaController;
 
 Route::get('/', function () {
     return view('tes');
@@ -63,6 +64,14 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/laporan_penilaian/edit/{id}', [LaporanPenilaianController::class, 'edit'])->name('admin.laporan_penilaian.edit');
     Route::put('/laporan_penilaian/update/{id}', [LaporanPenilaianController::class, 'update'])->name('admin.laporan_penilaian.update');
     Route::delete('/laporan_penilaian/delete/{id}', [LaporanPenilaianController::class, 'destroy'])->name('admin.laporan_penilaian.delete');
+
+    Route::get('/penugasan', [TargetKinerjaController::class, 'index'])->name('admin.penugasan');
+    Route::get('/penugasan/create', [TargetKinerjaController::class, 'create'])->name('admin.penugasan.create');
+    Route::post('/penugasan/store', [TargetKinerjaController::class, 'store'])->name('admin.penugasan.store');
+    Route::get('/penugasan/edit/{id}', [TargetKinerjaController::class, 'edit'])->name('admin.penugasan.edit');
+    Route::put('/penugasan/update/{id}', [TargetKinerjaController::class, 'update'])->name('admin.penugasan.update');
+    Route::delete('/penugasan/delete/{id}', [TargetKinerjaController::class, 'destroy'])->name('admin.penugasan.delete');
+
 });
 
 Route::prefix('karyawan')->middleware(['auth', 'role:karyawan'])->group(function () {
@@ -96,6 +105,9 @@ Route::prefix('karyawan')->middleware(['auth', 'role:karyawan'])->group(function
 
 
     Route::post('/pelaporan/storeOtomatis', [PelaporanKinerjaController::class, 'storeOtomatis'])->name('karyawan.pelaporan.storeOtomatis');
+
+    Route::get('/penugasan', [TargetKinerjaController::class, 'index'])->name('karyawan.penugasan');
+    Route::get('/penugasan/show/{id}', [TargetKinerjaController::class, 'show'])->name('karyawan.penugasan.show');
 
 });
 
@@ -152,3 +164,5 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 // web.php
 Route::get('/laporan', [LaporanController::class, 'laporan'])->name('laporan.generate');
 Route::get('/laporan/preview', [LaporanController::class, 'laporan'])->name('laporan.preview');
+
+Route::get('/penilaian-otomatis', [PenilaianKaryawanController::class, 'penilaianOtomatis']);

@@ -43,6 +43,13 @@
                     <li class='sidebar-title'>Manajemen</li>
 
                     <li class="sidebar-item">
+                        <a href="{{ route($role . '.penugasan') }}" class='sidebar-link'>
+                            <i data-feather="briefcase" width="20"></i>
+                            <span>Penugasan</span>
+                        </a>
+                    </li>
+
+                    <li class="sidebar-item">
                         <a href="{{ route($role . '.manajemen_pengguna') }}" class='sidebar-link'>
                             <i data-feather="users" width="20"></i>
                             <span>Pengguna</span>
@@ -78,6 +85,14 @@
                 <!-- sidebar karyawan  -->
                 @if (Auth::user()->role == 'karyawan')
                     <li class="sidebar-item">
+
+                        <li class="sidebar-item">
+                            <a href="{{ route($role . '.penugasan') }}" class='sidebar-link'>
+                                <i data-feather="briefcase" width="20"></i>
+                                <span>Penugasan</span>
+                            </a>
+                        </li>
+
                         <a href="{{ route($role . '.jurnal') }}" class='sidebar-link'>
                             <i data-feather="book-open" width="20"></i>
                             <span>Jurnal Harian</span>

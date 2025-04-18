@@ -20,6 +20,7 @@ class KategoriPenilaianController extends Controller
         $request->validate([
             'nama_kategori' => 'required|string|max:255',
             'deskripsi' => 'nullable|string|max:1000',
+            'tipe_penilaian' => 'required|string|max:255',
         ]);
 
         // Simpan data ke database
@@ -36,6 +37,7 @@ class KategoriPenilaianController extends Controller
         $request->validate([
             'nama_kategori' => 'required|string|max:255',
             'deskripsi' => 'nullable|string|max:1000',
+            'tipe_penilaian' => 'required|string|max:255',
         ]);
 
         // Update data ke database

@@ -22,10 +22,10 @@
                             <i class="bi bi-plus"></i> Tambah Data
                         </a>
 
-                        <!-- Trigger Modal -->
+                        {{-- <!-- Trigger Modal -->
                         <button @click="openModal = true" class="btn btn-primary">
                             Buat Pelaporan Otomatis
-                        </button>
+                        </button> --}}
                     @endif
                 </div>
 
@@ -97,10 +97,14 @@
                                 <th>NO</th>
                                 <th>nama karyawan</th>
                                 <th>email</th>
+                                <th>target tugas</th>
+                                <th>target laporan</th>
+                                <th>jumlah laporan</th>
                                 <th>periode</th>
                                 <th>isi laporan</th>
                                 <th>status</th>
                                 <th>lampiran</th>
+                                <th>skor objektif</th>
                                 <th>action</th>
                             </tr>
                         </thead>
@@ -110,8 +114,12 @@
                                     <td>{{ $loop->iteration }} </td>
                                     <td>{{ $p->karyawan->user->nama_lengkap }}</td>
                                     <td>{{ $p->karyawan->user->email }}</td>
+                                    <td>{{ $p->targetKinerja->judul_target ?? 'Umum (Semua Orang)' }}</td>
+                                    <td>{{ $p->targetKinerja->target_laporan }}</td>
+                                    <td>{{ $p->jumlah_laporan }}</td>
                                     <td>{{ $p->periode }}</td>
                                     <td>{{ $p->isi_laporan }}</td>
+
                                     <td>{{ $p->status }}</td>
                                     <td>
                                         @if ($p->lampiran2->count() > 0)
@@ -148,12 +156,14 @@
                                     </td>
 
                                     <td>
+                                        {{ $p->skor_objektif }}
+                                    <td>
                                         @if ($role == 'karyawan')
-                                            <a href="{{ route('karyawan.pelaporan.edit', $p->id) }}"
+                                            {{-- <a href="{{ route('karyawan.pelaporan.edit', $p->id) }}"
                                                 class="btn btn-sm btn-warning">
                                                 <i class="bi bi-pencil-square"></i>
                                                 Edit
-                                            </a>
+                                            </a> --}}
                                             <form action="{{ route('karyawan.pelaporan.delete', $p->id) }}"
                                                 method="POST" class="d-inline"
                                                 onclick="return confirm('Apakah anda yakin ingin menghapus data ini?')">

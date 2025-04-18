@@ -4,15 +4,21 @@
         <link rel="stylesheet" href="{{ asset('assets/vendors/perfect-scrollbar/perfect-scrollbar.css') }}">
         <link rel="stylesheet" href="{{ asset('assets/css/app.css') }}">
     <x-slot name="title">
-        Data Kategori Penilaian
+        Manajemen Penugasan
     </x-slot>
+    @php
+        $role = Auth::user()->role;
+    @endphp
     <section class="section">
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <span>Kategori Penilaian Datatable</span>
-                <a href="{{ route('admin.kategori_penilaian.create') }}" class="btn btn-primary">
+                @if ($role == 'admin')  
+                <a href="{{ route('admin.penugasan.create') }}" class="btn btn-primary">
                     <i class="bi bi-plus"></i> Tambah Data
                 </a>
+                @endif
+                
             </div>
             <div class="card-body">
                 @if (session('success'))
@@ -31,25 +37,34 @@
                     <thead>
                         <tr>
                             <th>NO</th>
+                            <th>nama karyawan</th>
                             <th>nama divisi</th>
-                            <th>deskripsi</th>
-                            <th>tipe penilaian</th>
+                            <th>judul target</th>
+                            <th>target laporan</th>
+                            <th>deadline</th>
+                            <th>di buat oleh</th>
+                            <th>periode</th>
                             <th>action</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach ($kate as $k )
+                        @foreach ($targetKinerja as $t )
                         <tr>
                             <td>{{ $loop->iteration }} </td>
-                            <td>{{ $k->nama_kategori }}</td>
-                            <td>{{ $k->deskripsi }}</td>
-                            <td>{{ $k->tipe_penilaian }}</td>
+                            <td>{{ $t->karyawan->user->nama_lengkap ?? 'semua karyawan' }}</td>
+                            <td>{{ $t->divisi->nama_divisi ?? '-' }}</td>
+                            <td>{{ $t->judul_target }}</td>
+                            <td>{{ $t->target_laporan }}</td>
+                            <td>{{ $t->deadline }}</td>
+                            <td>{{ $t->dibuatOleh->nama_lengkap }}</td>
+                            <td>{{ $t->periode }}</td>
                             <td>
-                                <a href="{{ route('admin.kategori_penilaian.edit', $k->id) }}"  class="btn btn-sm btn-warning">
+                                @if ($role == 'admin')
+                                <a href="{{ route('admin.penugasan.edit', $t->id) }}"  class="btn btn-sm btn-warning">
                                     <i class="bi bi-pencil-square"></i>
                                     Edit
                                 </a>
-                                <form action="{{ route('admin.kategori_penilaian.delete', $k->id) }}" method="POST" class="d-inline" onclick="return confirm('Apakah anda yakin ingin menghapus data ini?')">
+                                <form action="{{ route('admin.penugasan.delete', $t->id) }}" method="POST" class="d-inline" onclick="return confirm('Apakah anda yakin ingin menghapus data ini?')">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="btn btn-sm btn-danger">
@@ -57,6 +72,8 @@
                                         Hapus
                                     </button>
                                 </form>
+                                @endif
+                                <a href="{{ route('karyawan.penugasan.show', $t->id) }}" class="btn btn-sm btn-info"><i class="bi bi-eye"></i>detail tugas></a>
                             </td>
                         </tr>
                         @endforeach

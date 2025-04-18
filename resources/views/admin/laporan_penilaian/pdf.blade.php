@@ -136,7 +136,7 @@
                         </td>
                         <td>
                             @foreach ($nilaiKaryawan as $penilaian)
-                                {{ $penilaian->rekomendasi ?? '-' }}<br>
+                                {{ $penilaian->komentar ?? '-' }}<br>
                             @endforeach
                         </td>
                     </tr>

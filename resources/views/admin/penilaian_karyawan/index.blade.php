@@ -62,11 +62,11 @@
                                 <td>{{ $p->periode }}</td>
                                 <td>
                                     @if ($role == 'tim_penilai')
-                                        <a href="{{ route('tim_penilai.riwayat_penilaian.edit', $p->id) }}"
+                                        {{-- <a href="{{ route('tim_penilai.riwayat_penilaian.edit', $p->id) }}"
                                             class="btn btn-sm btn-warning">
                                             <i class="bi bi-pencil-square"></i>
                                             Edit
-                                        </a>
+                                        </a> --}}
                                         <form action="{{ route('tim_penilai.riwayat_penilaian.delete', $p->id) }}"
                                             method="POST" class="d-inline"
                                             onclick="return confirm('Apakah anda yakin ingin menghapus data ini?')">

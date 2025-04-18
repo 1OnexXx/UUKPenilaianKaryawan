@@ -10,6 +10,7 @@ class KategoriPenilaian extends Model
     protected $fillable = [
         'nama_kategori',
         'deskripsi',
+        'tipe_penilaian',
     ];
 
     public function penilaian_karyawan()

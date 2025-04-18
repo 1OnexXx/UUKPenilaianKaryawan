@@ -5,10 +5,13 @@ namespace App\Http\Controllers;
 use Carbon\Carbon;
 use App\Models\Jurnal;
 use App\Models\Karyawan;
+use App\Models\Lampiran;
 use Illuminate\Http\Request;
+use App\Models\TargetKinerja;
 use App\Models\PelaporanKinerja;
 use App\Models\KategoriPenilaian;
 use App\Models\PenilaianKaryawan;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 
 class PenilaianKaryawanController extends Controller
@@ -35,7 +38,7 @@ class PenilaianKaryawanController extends Controller
         $karyawan = Karyawan::with('user')->findOrFail($karyawan_id);
         $kategori = KategoriPenilaian::all();
 
-        
+
 
         $bulanIni = Carbon::now()->month;
         $tahunIni = Carbon::now()->year;
@@ -65,17 +68,37 @@ class PenilaianKaryawanController extends Controller
             'komentar' => 'nullable|string|max:255',
         ]);
 
+        $periode = now()->format('Y-m');
+        $penilaiId = auth()->id();
+
+        // Cek apakah penilai ini sudah pernah menilai kategori ini untuk karyawan yang sama di periode yang sama
+        $sudahAda = PenilaianKaryawan::where([
+            ['karyawan_id', $request->karyawan_id],
+            ['kategori_id', $request->kategori_id],
+            ['penilai_id', $penilaiId],
+            ['periode', $periode],
+        ])->exists();
+
+        if ($sudahAda) {
+            return redirect()->back()->withErrors([
+                'kategori_id' => 'Anda sudah memberikan penilaian ini untuk karyawan tersebut pada kategori ini.'
+            ])->withInput();
+        }
+
+        // Simpan jika belum ada
         PenilaianKaryawan::create([
             'karyawan_id' => $request->karyawan_id,
-            'penilai_id' => auth()->id(), // ID user yang sedang login
+            'penilai_id' => $penilaiId,
             'kategori_id' => $request->kategori_id,
             'nilai' => $request->nilai,
             'komentar' => $request->komentar,
-            'periode' => now()->format('Y-m'), // Periode penilaian 
+            'periode' => $periode,
         ]);
 
-        return redirect()->route('tim_penilai.riwayat_penilaian')->with('success', 'Penilaian berhasil ditambahkan.');
+        return redirect()->route('tim_penilai.riwayat_penilaian')
+            ->with('success', 'Penilaian berhasil ditambahkan.');
     }
+
 
     public function edit($id)
     {
@@ -132,12 +155,12 @@ class PenilaianKaryawanController extends Controller
     {
         $user = Auth::user();
         $role = $user->role;
-    
+
         // Ambil semua laporan bulan ini
         $laporanKinerja = PelaporanKinerja::whereMonth('created_at', date('m'))
             ->whereYear('created_at', date('Y'))
             ->get();
-    
+
         // Ubah status otomatis dari 'dikirim' ke 'ditinjau' jika role adalah tim_penilai atau kepala_sekolah
         if (in_array($role, ['tim_penilai', 'kepala_sekolah'])) {
             foreach ($laporanKinerja as $laporan) {
@@ -176,6 +199,108 @@ class PenilaianKaryawanController extends Controller
 
         return back()->with('success', 'penilaian jurnal berhasil dibuat.');
 
+    }
+
+    public function penilaianOtomatis(Request $request)
+    {
+        $kategori = KategoriPenilaian::findOrFail($request->kategori_id);
+        Log::info('Kategori: ' . $kategori->nama_kategori);
+
+        $karyawanId = $request->karyawan_id;
+        $karyawan = Karyawan::find($karyawanId);
+
+        if (!$karyawan) {
+            Log::error('Karyawan tidak ditemukan', ['karyawan_id' => $karyawanId]);
+            return response()->json(['error' => 'Karyawan tidak ditemukan'], 404);
+        }
+
+        $nilai = 0;
+
+        switch ($kategori->nama_kategori) {
+            case 'Ketepatan Waktu':
+            case 'Kesesuaian Waktu':
+                $laporanList = PelaporanKinerja::with([
+                    'targetKinerja' => function ($query) use ($karyawan) {
+                        $query->where(function ($q) use ($karyawan) {
+                            $q->where('karyawan_id', $karyawan->id)
+                                ->orWhere(function ($sub) use ($karyawan) {
+                                    $sub->whereNull('karyawan_id')->where('divisi_id', $karyawan->divisi_id);
+                                })
+                                ->orWhere(function ($sub) {
+                                    $sub->whereNull('karyawan_id')->whereNull('divisi_id');
+                                });
+                        });
+                    }
+                ])
+                    ->where('karyawan_id', $karyawan->id)
+                    ->get();
+
+                $totalLaporan = $laporanList->count();
+
+                $tepatWaktu = $laporanList->filter(function ($laporan) {
+                    return $laporan->targetKinerja
+                        && $laporan->targetKinerja->deadline
+                        && $laporan->created_at <= $laporan->targetKinerja->deadline;
+                })->count();
+
+                Log::info("Total laporan: $totalLaporan, Tepat waktu: $tepatWaktu");
+
+                if ($totalLaporan > 0) {
+                    $nilai = round(($tepatWaktu / $totalLaporan) * 100);
+                }
+                break;
+
+            case 'Jumlah Laporan':
+            case 'Jumlah Dokumen':
+                $target = TargetKinerja::where(function ($q) use ($karyawan) {
+                    $q->where('karyawan_id', $karyawan->id)
+                        ->orWhere(function ($sub) use ($karyawan) {
+                            $sub->whereNull('karyawan_id')->where('divisi_id', $karyawan->divisi_id);
+                        })
+                        ->orWhere(function ($sub) {
+                            $sub->whereNull('karyawan_id')->whereNull('divisi_id');
+                        });
+                })->orderByDesc('id')->first();
+
+                if (!$target || $target->target_laporan <= 0) {
+                    break;
+                }
+
+                // Hitung target per karyawan jika targetnya bukan personal
+                $jumlahTarget = $target->target_laporan;
+
+                if (is_null($target->karyawan_id) && !is_null($target->divisi_id)) {
+                    $jumlahKaryawan = Karyawan::where('divisi_id', $target->divisi_id)->count();
+                    $jumlahTarget = $jumlahKaryawan > 0 ? $jumlahTarget / $jumlahKaryawan : $jumlahTarget;
+                } elseif (is_null($target->karyawan_id) && is_null($target->divisi_id)) {
+                    $jumlahKaryawan = Karyawan::count();
+                    $jumlahTarget = $jumlahKaryawan > 0 ? $jumlahTarget / $jumlahKaryawan : $jumlahTarget;
+                }
+
+                if ($kategori->nama_kategori === 'Jumlah Laporan') {
+                    $jumlah = PelaporanKinerja::where('karyawan_id', $karyawan->id)->sum('jumlah_laporan');
+                } else {
+                    $jurnalIds = Jurnal::where('karyawan_id', $karyawan->id)
+                        ->where('status', 'disetujui')
+                        ->pluck('id');
+
+                    $jumlah = Lampiran::whereIn('lampiranable_id', $jurnalIds)
+                        ->where('lampiranable_type', Jurnal::class)
+                        ->whereIn('file_type', ['pdf', 'doc', 'docx'])
+                        ->count();
+                }
+
+                $nilai = round(($jumlah / $jumlahTarget) * 100);
+                break;
+
+            default:
+                $nilai = 0;
+        }
+
+        $nilai = min($nilai, 100);
+        Log::info("Nilai akhir untuk {$kategori->nama_kategori}: {$nilai}");
+
+        return response()->json(['nilai' => $nilai]);
     }
 
 }

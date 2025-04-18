@@ -23,6 +23,16 @@
                             </div>
                         </div>
 
+                        <div>
+                            <div class="form-group"></div>
+                                <label for="tipe_penilaian">Penilaian</label>
+                                <select name="tipe_penilaian" id="tipe_penilaian" class="form-control" required>
+                                    <option value="">== Pilih Tipe Penilaian ==</option>
+                                    <option value="subjektif">subjektif</option>
+                                    <option value="obektif">obektif</option>
+                                </select>
+                        </div>
+
                         <div class="col-12 mt-3">
                             <div class="form-group">
                                 <label for="description">Deskripsi</label>
@@ -30,6 +40,8 @@
                                 <small class="text-muted">Isikan deskripsi singkat tentang divisi ini.</small>
                             </div>
                         </div>
+
+                        
                     </div>
 
                     <div class="mt-4">
