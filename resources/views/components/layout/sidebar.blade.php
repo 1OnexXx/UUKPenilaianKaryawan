@@ -65,12 +65,12 @@
 
                     <li class='sidebar-title'>Laporan</li>
 
-                    <li class="sidebar-item">
+                    {{-- <li class="sidebar-item">
                         <a href="{{route($role . '.jurnal')}}" class='sidebar-link'>
                             <i data-feather="book-open" width="20"></i>
                             <span>Jurnal Harian</span>
                         </a>
-                    </li>
+                    </li> --}}
 
                     <li class="sidebar-item">
                         <a href="{{route($role . '.laporan_penilaian')}}" class='sidebar-link'>

@@ -58,6 +58,15 @@
             font-size: 10px;
             text-align: center;
         }
+        .hidden {
+            display: none;
+        }
+        @media print {
+        button,
+        .btn {
+            display: none !important;
+        }
+    }
     </style>
 </head>
 
@@ -71,7 +80,8 @@
             <td style="width: 60%; text-align: center;">
                 <h1 style="margin: 0; font-size: 18px;">LAPORAN PENILAIAN KARYAWAN</h1>
                 <p style="margin: 5px 0;">Jenis Laporan: {{ ucfirst($jenis_laporan) }}</p>
-                <p style="margin: 5px 0;">Tanggal Cetak: {{ now()->format('d F Y') }}</p>
+                {{-- <p style="margin: 5px 0;">Tanggal Cetak: {{ now()->format('d F Y') }}</p> --}}
+                <p style="margin: 5px 0;">Periode : {{ $periode }}</p>
             </td>
             <td style="width: 20%; text-align: center;">
                 <img src="{{ asset('images/logo_rpl.png') }}" alt="Logo RPL" style="width: 80px;">
@@ -79,8 +89,7 @@
         </tr>
     </table>
 
-    <input type="hidden" hidden>{{ $divisiid }}</input>
-
+    <input type="hidden" class="hidden" hidden>{{ $divisiid }}</input>
 
     @php
         $laporanByDivisi = $laporan->groupBy('karyawan.divisi.nama_divisi');
@@ -101,14 +110,11 @@
                 </tr>
             </thead>
             <tbody>
-                @php
-                    $totalNilai = 0;
-                    $jumlahPenilaian = 0;
-                @endphp
-
                 @foreach ($dataDivisi as $index => $data)
                     @php
                         $nilaiKaryawan = $data->karyawan->penilaian_karyawan;
+                        $totalNilaiKaryawan = 0;
+                        $jumlahPenilaianKaryawan = 0;
                     @endphp
                     <tr>
                         <td>{{ $index + 1 }}</td>
@@ -127,9 +133,9 @@
                             @foreach ($nilaiKaryawan as $penilaian)
                                 {{ $penilaian->nilai ?? '-' }}<br>
                                 @php
-                                    if ($penilaian->nilai) {
-                                        $totalNilai += $penilaian->nilai;
-                                        $jumlahPenilaian++;
+                                    if ($penilaian->nilai !== null) {
+                                        $totalNilaiKaryawan += $penilaian->nilai;
+                                        $jumlahPenilaianKaryawan++;
                                     }
                                 @endphp
                             @endforeach
@@ -140,31 +146,24 @@
                             @endforeach
                         </td>
                     </tr>
+                    @php
+                        $rata2Karyawan = $jumlahPenilaianKaryawan > 0 ? $totalNilaiKaryawan / $jumlahPenilaianKaryawan : 0;
+                        $statusKaryawan = $rata2Karyawan >= 80 ? 'Baik' : 'Harus Ditingkatkan';
+                    @endphp
+                    <tr>
+                        <td colspan="4" style="text-align: right; font-weight: bold;">Rata-rata</td>
+                        <td colspan="2" style="font-weight: bold;">
+                            {{ number_format($rata2Karyawan, 2) }} ({{ $statusKaryawan }})
+                        </td>
+                    </tr>
                 @endforeach
-
-                {{-- Rata-rata dan status --}}
-                @php
-                    $rata2 = $jumlahPenilaian > 0 ? $totalNilai / $jumlahPenilaian : 0;
-                    $status = $rata2 >= 80 ? 'Baik' : 'Harus Ditingkatkan';
-                @endphp
-                <tr>
-                    <td colspan="4" style="text-align: right; font-weight: bold;">Rata-rata Nilai</td>
-                    <td colspan="2" style="text-align: center; font-weight: bold;">
-                        {{ number_format($rata2, 2) }}
-                    </td>
-                </tr>
-                <tr>
-                    <td colspan="4" style="text-align: right; font-weight: bold;">Status</td>
-                    <td colspan="2" style="text-align: center; font-weight: bold;">
-                        {{ $status }}
-                    </td>
-                </tr>
             </tbody>
         </table>
     @empty
         <p style="text-align: center;">Data tidak tersedia</p>
     @endforelse
 
+    
     {{-- Footer --}}
     <div class="footer">
         Dicetak oleh sistem pada {{ now()->format('d-m-Y H:i') }}
@@ -197,14 +196,20 @@
             @endforelse
         </tbody>
     </table>
+
+    <div style="margin-top: 100px; text-align: right;">
+        <p>Mengetahui,</p>
+        <p style="margin-bottom: 60px;">Kepala Sekolah</p>
+        <p><u>Rony Harimukti, S.Pd., M.M.</u></p>
+        {{-- <p>NIP: {{ $kepala_sekolah->nip ?? 'NIP Kepala Sekolah' }}</p> --}}
+    </div>
+
     <button onclick="window.print()" class="btn btn-info mt-3">
         <i class="bi bi-printer"></i> Print Laporan
     </button>
     <button onclick="history.back()" class="btn btn-secondary mt-3" style="margin-left: 10px;">
         ⬅ Kembali
     </button>
-    
-
 </body>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
