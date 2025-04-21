@@ -28,13 +28,6 @@ class KategoriPenilaianSeeder extends Seeder
                 'updated_at' => $now,
             ],
             [
-                'nama_kategori' => 'Kerja Sama Tim',
-                'deskripsi' => 'Dinilai berdasarkan kolaborasi dengan tim',
-                'tipe_penilaian' => 'subjektif',
-                'created_at' => $now,
-                'updated_at' => $now,
-            ],
-            [
                 'nama_kategori' => 'Jumlah Laporan',
                 'deskripsi' => 'Berdasarkan total laporan yang dikumpulkan',
                 'tipe_penilaian' => 'objektif',
@@ -56,22 +49,8 @@ class KategoriPenilaianSeeder extends Seeder
                 'updated_at' => $now,
             ],
             [
-                'nama_kategori' => 'Kualitas Isi Laporan',
-                'deskripsi' => 'Dinilai dari kelengkapan dan kejelasan isi pelaporan kinerja',
-                'tipe_penilaian' => 'subjektif',
-                'created_at' => $now,
-                'updated_at' => $now,
-            ],
-            [
                 'nama_kategori' => 'Inisiatif',
                 'deskripsi' => 'Penilaian terhadap karyawan dalam mengambil langkah proaktif terhadap tugas',
-                'tipe_penilaian' => 'subjektif',
-                'created_at' => $now,
-                'updated_at' => $now,
-            ],
-            [
-                'nama_kategori' => 'Tanggung Jawab',
-                'deskripsi' => 'Diukur dari tingkat kepatuhan terhadap tugas yang diberikan',
                 'tipe_penilaian' => 'subjektif',
                 'created_at' => $now,
                 'updated_at' => $now,
